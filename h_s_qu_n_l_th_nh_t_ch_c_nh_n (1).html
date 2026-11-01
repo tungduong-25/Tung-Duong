@@ -1,0 +1,2425 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ & Quản lý Thành tích Cá nhân | Ultra Bento Portfolio</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans, Space Grotesk & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Cấu hình Tailwind tùy chỉnh -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['Space Grotesk', 'monospace'],
+                    },
+                    colors: {
+                        obsidian: '#040711',
+                    },
+                    animation: {
+                        'aurora': 'aurora 14s ease-in-out infinite alternate',
+                        'spin-slow': 'spin 8s linear infinite',
+                        'shimmer': 'shimmer 3s infinite',
+                    },
+                    keyframes: {
+                        aurora: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '50%': { transform: 'translate(30px, -25px) scale(1.08)' },
+                            '100%': { transform: 'translate(-20px, 20px) scale(0.96)' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Nền Obsidian Dark Mode & Aurora Mesh */
+        body {
+            background-color: #040711;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        /* Hiệu ứng kính mờ Ultra Glassmorphism */
+        .ultra-glass {
+            background: linear-gradient(155deg, rgba(15, 23, 42, 0.72) 0%, rgba(9, 13, 26, 0.86) 100%);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+        }
+
+        /* Thẻ Bento có hiệu ứng Spotlight theo chuột */
+        .bento-card {
+            position: relative;
+            background: linear-gradient(160deg, rgba(30, 41, 59, 0.45) 0%, rgba(11, 17, 32, 0.85) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        .bento-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(
+                600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(34, 211, 238, 0.11),
+                transparent 40%
+            );
+            opacity: 0;
+            transition: opacity 0.35s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .bento-card:hover::before {
+            opacity: 1;
+        }
+
+        .bento-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(34, 211, 238, 0.35);
+            box-shadow: 0 25px 50px -12px rgba(6, 182, 212, 0.18), 0 0 30px -8px rgba(99, 102, 241, 0.25);
+        }
+
+        /* Viền đặc biệt cho thẻ Thành tích Nổi bật (Pinned Masterpiece) */
+        .bento-pinned {
+            border-color: rgba(251, 191, 36, 0.35);
+            box-shadow: 0 20px 45px -15px rgba(245, 158, 11, 0.16), inset 0 1px 0 0 rgba(251, 191, 36, 0.25);
+        }
+        .bento-pinned:hover {
+            border-color: rgba(251, 191, 36, 0.65);
+            box-shadow: 0 25px 55px -12px rgba(245, 158, 11, 0.28), 0 0 35px -5px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Vòng sáng Conic Avatar */
+        .avatar-conic-ring {
+            position: relative;
+            padding: 4px;
+            border-radius: 9999px;
+            background: conic-gradient(from 0deg, #6366f1, #22d3ee, #10b981, #a855f7, #6366f1);
+            box-shadow: 0 0 35px rgba(34, 211, 238, 0.35);
+        }
+
+        /* Nhãn lấp lánh */
+        .shimmer-badge {
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.2) 0%, rgba(253, 224, 71, 0.4) 50%, rgba(245, 158, 11, 0.2) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 3.5s infinite;
+        }
+
+        /* Chế độ chỉnh sửa trực tiếp (Chỉ bật khi ở Admin Mode) */
+        body.is-admin .editable-field {
+            cursor: text;
+            border-radius: 0.5rem;
+            padding: 2px 8px;
+            margin: -2px -8px;
+            border: 1px dashed rgba(34, 211, 238, 0.35);
+            background: rgba(15, 23, 42, 0.45);
+            transition: all 0.2s ease;
+        }
+        body.is-admin .editable-field:hover {
+            background: rgba(34, 211, 238, 0.1);
+            border-color: rgba(34, 211, 238, 0.75);
+        }
+        body.is-admin .editable-field:focus {
+            outline: none;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid #22d3ee;
+            box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.25);
+        }
+
+        /* Ẩn các thành phần chỉ dành cho Admin khi ở Viewer Mode */
+        body:not(.is-admin) .admin-only {
+            display: none !important;
+        }
+        body.is-admin .viewer-only {
+            display: none !important;
+        }
+
+        /* Thanh cuộn tinh tế */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #040711;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 9999px;
+            border: 2px solid #040711;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+
+    <!-- DỮ LIỆU ĐƯỢC NHÚNG CỨNG KHI XUẤT FILE HTML ĐỘC LẬP -->
+    <script id="baked-data-script">
+        window.__BAKED_PORTFOLIO_DATA__ = null;
+    </script>
+</head>
+<body class="min-h-screen relative selection:bg-cyan-400 selection:text-slate-950">
+
+    <!-- HIỆU ỨNG ÁNH SÁNG NỀN AURORA MESH & DIGITAL GRID -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="absolute -top-48 -left-40 w-[34rem] h-[34rem] bg-indigo-600/20 rounded-full blur-[150px] animate-aurora"></div>
+        <div class="absolute top-1/4 -right-32 w-[32rem] h-[32rem] bg-cyan-500/15 rounded-full blur-[150px] animate-aurora" style="animation-delay: -4s;"></div>
+        <div class="absolute -bottom-32 left-1/3 w-[36rem] h-[36rem] bg-fuchsia-600/12 rounded-full blur-[160px] animate-aurora" style="animation-delay: -8s;"></div>
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:36px_36px] [mask-image:radial-gradient(ellipse_80%_60%_at_50%_20%,#000_60%,transparent_100%)]"></div>
+    </div>
+
+    <!-- THANH ĐIỀU HƯỚNG TRÊN CÙNG (ULTRA GLASS HEADER) -->
+    <header class="sticky top-0 z-30 border-b border-white/10 bg-[#040711]/80 backdrop-blur-2xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-3">
+            
+            <!-- Thương hiệu & Trạng thái Chế độ -->
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 via-cyan-400 to-emerald-300 p-[1px] shadow-lg shadow-cyan-500/20">
+                    <div class="w-full h-full bg-slate-950 rounded-[15px] flex items-center justify-center">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-cyan-300"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-display font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-cyan-300 bg-clip-text text-transparent">
+                            Portfolio &amp; Achievements
+                        </span>
+                        <!-- Huy hiệu trạng thái Người xem vs Quản trị -->
+                        <span id="modeStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-800/90 text-slate-300 border border-white/10">
+                            <i data-lucide="eye" class="w-3 h-3 text-cyan-400"></i>
+                            <span>Chế độ Khách (Chỉ xem)</span>
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
+                        <span id="syncStatusDot" class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span id="syncStatusText">Hồ sơ công khai đã xác thực</span>
+                        <span id="storageBadge" class="admin-only px-1.5 py-0.2 rounded bg-slate-800/80 text-cyan-300 border border-white/5 font-mono text-[10px]">0 KB</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cụm nút điều khiển thông minh -->
+            <div class="flex items-center gap-2 sm:gap-2.5">
+                <!-- Nút Chia sẻ / Hướng dẫn chia sẻ Link -->
+                <button onclick="openShareGuideModal()" title="Cách chia sẻ hồ sơ cho người khác xem"
+                    class="p-2 sm:px-3.5 sm:py-2 rounded-xl text-xs font-medium text-slate-200 hover:text-white bg-slate-900/90 hover:bg-slate-800 border border-white/10 transition flex items-center gap-1.5">
+                    <i data-lucide="share-2" class="w-4 h-4 text-cyan-400"></i>
+                    <span class="hidden sm:inline">Chia sẻ Hồ sơ</span>
+                </button>
+
+                <!-- Nút Thêm thành tích nhanh (Chỉ hiện khi ở Admin Mode) -->
+                <button onclick="openAchievementModal()"
+                    class="admin-only px-3.5 py-2 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-950 bg-gradient-to-r from-indigo-400 via-cyan-300 to-emerald-300 hover:brightness-110 active:scale-95 transition shadow-lg shadow-cyan-500/20 flex items-center gap-1.5">
+                    <i data-lucide="plus-circle" class="w-4 h-4 stroke-[2.5]"></i>
+                    <span>Thêm thành tích</span>
+                </button>
+
+                <!-- Nút Mở khóa Quản trị (Khi đang ở Chế độ Khách) -->
+                <button onclick="openPinModal()"
+                    class="viewer-only px-3.5 py-2 rounded-xl text-xs font-semibold text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-400/30 transition flex items-center gap-1.5 shadow-lg shadow-amber-500/5">
+                    <i data-lucide="lock" class="w-3.5 h-3.5 text-amber-400"></i>
+                    <span>Mở khóa Quản trị</span>
+                </button>
+
+                <!-- Nút Khóa lại xem như Khách (Khi đang ở Admin Mode) -->
+                <button onclick="lockAdminMode()"
+                    class="admin-only px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-200 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-400/30 transition flex items-center gap-1.5">
+                    <i data-lucide="shield-off" class="w-3.5 h-3.5 text-rose-400"></i>
+                    <span class="hidden sm:inline">Khóa lại (Xem như Khách)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- THANH CÔNG CỤ QUẢN TRỊ VIÊN (ADMIN COMMAND BAR - CHỈ HIỆN KHI MỞ KHÓA PIN) -->
+        <div class="admin-only border-t border-cyan-500/20 bg-gradient-to-r from-indigo-950/80 via-slate-900/90 to-cyan-950/80 backdrop-blur-xl">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2 text-xs text-cyan-200">
+                    <span class="px-2 py-0.5 rounded-md bg-cyan-500/20 border border-cyan-400/40 font-mono font-bold text-cyan-300 text-[11px]">ADMIN MODE</span>
+                    <span>Bạn đang ở chế độ Chỉnh sửa. Nhấn trực tiếp vào chữ trên hồ sơ để sửa hoặc quản lý các thẻ bên dưới.</span>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- Nút Đóng gói file index.html để chia sẻ / đưa lên web -->
+                    <button onclick="exportBakedHtmlFile()"
+                        class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-950 bg-gradient-to-r from-amber-300 via-yellow-300 to-orange-300 hover:brightness-110 transition shadow-md shadow-amber-500/20 flex items-center gap-1.5"
+                        title="Tải xuống file index.html đã nhúng sẵn toàn bộ thành tích của bạn và khóa sẵn ở chế độ Khách">
+                        <i data-lucide="package-check" class="w-4 h-4 stroke-[2.2]"></i>
+                        <span>Xuất file index.html (Đã nhúng dữ liệu)</span>
+                    </button>
+
+                    <!-- Xuất JSON -->
+                    <button onclick="exportPortfolioData()"
+                        class="px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-200 bg-slate-800/90 hover:bg-slate-700 border border-white/10 transition flex items-center gap-1">
+                        <i data-lucide="download" class="w-3.5 h-3.5 text-cyan-400"></i>
+                        <span>Xuất JSON</span>
+                    </button>
+
+                    <!-- Nhập JSON -->
+                    <button onclick="document.getElementById('importJsonInput').click()"
+                        class="px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-200 bg-slate-800/90 hover:bg-slate-700 border border-white/10 transition flex items-center gap-1">
+                        <i data-lucide="upload" class="w-3.5 h-3.5 text-indigo-400"></i>
+                        <span>Nhập JSON</span>
+                    </button>
+                    <input type="file" id="importJsonInput" accept=".json,application/json" class="hidden" onchange="importPortfolioData(event)">
+
+                    <!-- Đổi mã PIN -->
+                    <button onclick="openChangePinModal()"
+                        class="px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-200 bg-slate-800/90 hover:bg-slate-700 border border-white/10 transition flex items-center gap-1">
+                        <i data-lucide="key-round" class="w-3.5 h-3.5 text-amber-400"></i>
+                        <span>Đổi PIN</span>
+                    </button>
+
+                    <!-- Khôi phục mẫu -->
+                    <button onclick="openResetDemoModal()"
+                        class="px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-300 bg-slate-800/90 hover:bg-slate-700 border border-white/10 transition flex items-center gap-1">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-rose-400"></i>
+                        <span>Dữ liệu mẫu</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- NỘI DUNG CHÍNH -->
+    <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-9 space-y-8">
+
+        <!-- KHU VỰC 1: ULTRA BENTO HERO (HỒ SƠ BẤT ĐỐI XỨNG 8 CỘT + THỐNG KÊ 4 CỘT) -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+            
+            <!-- KHỐI HỒ SƠ CÁ NHÂN CHÍNH (8 CỘT) -->
+            <div class="lg:col-span-8 bento-card ultra-glass rounded-[28px] flex flex-col justify-between relative overflow-hidden">
+                
+                <!-- Banner Nghệ thuật phía trên -->
+                <div class="relative h-32 sm:h-36 w-full overflow-hidden bg-gradient-to-r from-indigo-950 via-slate-900 to-cyan-950 border-b border-white/10">
+                    <!-- Họa tiết sóng ánh sáng SVG -->
+                    <svg class="absolute inset-0 w-full h-full opacity-35" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="heroWave" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#6366f1" stop-opacity="0.6"/>
+                                <stop offset="50%" stop-color="#22d3ee" stop-opacity="0.8"/>
+                                <stop offset="100%" stop-color="#10b981" stop-opacity="0.5"/>
+                            </linearGradient>
+                        </defs>
+                        <path fill="url(#heroWave)" d="M0,192L60,176C120,160,240,128,360,138.7C480,149,600,203,720,208C840,213,960,171,1080,149.3C1200,128,1320,128,1380,128L1440,128L1440,320L0,320Z"></path>
+                    </svg>
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(34,211,238,0.28),transparent_55%)]"></div>
+
+                    <!-- Nhãn Hồ sơ Xác thực góc phải trên -->
+                    <div class="absolute top-4 right-4 sm:right-6 flex items-center gap-2">
+                        <div class="px-3 py-1 rounded-full bg-slate-950/75 border border-cyan-400/30 backdrop-blur-md flex items-center gap-1.5 text-xs font-medium text-cyan-200 shadow-lg">
+                            <i data-lucide="badge-check" class="w-4 h-4 text-cyan-400"></i>
+                            <span>Verified Achievement Portfolio</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thân Hồ sơ -->
+                <div class="px-6 sm:px-8 pb-6 sm:pb-8 pt-0 flex-1 flex flex-col justify-between relative z-10">
+                    <!-- Hàng Avatar & Nút hành động -->
+                    <div class="flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 -mt-14 sm:-mt-16 mb-5">
+                        <div class="relative group shrink-0">
+                            <div onclick="triggerAvatarUpload()"
+                                id="avatarWrapper"
+                                class="avatar-conic-ring w-28 h-28 sm:w-32 sm:h-32 rounded-full relative select-none transition transform group-hover:scale-[1.02]">
+                                <img id="profileAvatar" src="" alt="Avatar"
+                                    class="w-full h-full object-cover rounded-full bg-slate-900 border-4 border-[#040711]">
+                                
+                                <!-- Lớp phủ đổi ảnh (Chỉ hiện khi ở Admin Mode) -->
+                                <div class="admin-only absolute inset-1 rounded-full bg-slate-950/75 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-center p-2 cursor-pointer">
+                                    <i data-lucide="camera" class="w-6 h-6 text-cyan-400 mb-1"></i>
+                                    <span class="text-[11px] font-semibold text-white leading-tight">Đổi Avatar</span>
+                                </div>
+                            </div>
+
+                            <!-- Chấm trạng thái Online / Sẵn sàng kết nối -->
+                            <div class="absolute bottom-2 right-2 w-5 h-5 rounded-full bg-emerald-400 border-4 border-[#040711] shadow-lg" title="Sẵn sàng kết nối & hợp tác"></div>
+                            <input type="file" id="avatarUploadInput" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)">
+                        </div>
+
+                        <!-- Nhãn trạng thái / Hướng dẫn chỉnh sửa -->
+                        <div class="flex flex-wrap items-center justify-center sm:justify-end gap-2">
+                            <span class="viewer-only inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/25">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                <span>Hồ sơ công khai chính thức</span>
+                            </span>
+                            <span class="admin-only inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-cyan-500/15 text-cyan-300 border border-cyan-400/30">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                <span>Chế độ Admin: Nhấn vào văn bản bất kỳ bên dưới để sửa</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Thông tin Chính: Tên, Chức danh, Châm ngôn -->
+                    <div class="space-y-3 text-center sm:text-left">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-2 justify-center sm:justify-start">
+                            <h1 id="profileName" spellcheck="false" data-field="name"
+                                class="editable-field font-display text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-cyan-200 bg-clip-text text-transparent">
+                                Nguyễn Hoàng Đức
+                            </h1>
+                        </div>
+
+                        <p id="profileRole" spellcheck="false" data-field="role"
+                            class="editable-field text-sm sm:text-base md:text-lg font-semibold text-cyan-300/95">
+                            Giảng viên CNTT &amp; Nhà phát triển Web / AI — Trường Cao đẳng Cơ điện Hà Nội
+                        </p>
+
+                        <!-- Khung Châm ngôn nghệ thuật -->
+                        <div class="pt-1">
+                            <div class="relative rounded-2xl bg-slate-900/65 border border-white/10 p-4 sm:p-4.5">
+                                <i data-lucide="quote" class="w-5 h-5 text-cyan-400/40 absolute top-3 left-3 pointer-events-none"></i>
+                                <blockquote id="profileMotto" spellcheck="false" data-field="motto"
+                                    class="editable-field pl-6 text-xs sm:text-sm text-slate-200/90 italic leading-relaxed">
+                                    “Kiến tạo tri thức số, kết nối công nghệ AI thực tiễn và truyền cảm hứng sáng tạo trong từng bài giảng &amp; dự án.”
+                                </blockquote>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3 Thẻ Thông tin Nhanh (Địa điểm, Liên hệ, Lĩnh vực - Sửa trực tiếp khi ở Admin Mode) -->
+                    <div class="mt-6 pt-5 border-t border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-slate-900/60 border border-white/5">
+                            <div class="w-8 h-8 rounded-xl bg-indigo-500/15 border border-indigo-400/30 flex items-center justify-center text-indigo-300 shrink-0">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block">Đơn vị / Địa điểm</span>
+                                <span id="profileLocation" spellcheck="false" data-field="location"
+                                    class="editable-field text-xs font-medium text-slate-200 truncate block">
+                                    Hà Nội, Việt Nam (HCEM)
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-slate-900/60 border border-white/5">
+                            <div class="w-8 h-8 rounded-xl bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-cyan-300 shrink-0">
+                                <i data-lucide="cpu" class="w-4 h-4"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block">Chuyên môn trọng tâm</span>
+                                <span id="profileSpecialty" spellcheck="false" data-field="specialty"
+                                    class="editable-field text-xs font-medium text-slate-200 truncate block">
+                                    Web Fullstack, AI &amp; EdTech
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-slate-900/60 border border-white/5">
+                            <div class="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center text-emerald-300 shrink-0">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block">Liên hệ / Kết nối</span>
+                                <span id="profileContact" spellcheck="false" data-field="contact"
+                                    class="editable-field text-xs font-medium text-slate-200 truncate block">
+                                    hoangduc.cntt@hcem.edu.vn
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KHỐI BENTO THỐNG KÊ ĐA CHIỀU (4 CỘT) -->
+            <div class="lg:col-span-4 grid grid-cols-2 gap-4 content-between">
+                
+                <!-- Ô 1: Tổng số thành tích -->
+                <div onclick="setCategoryFilter('ALL')"
+                    class="bento-card rounded-[26px] p-5 flex flex-col justify-between cursor-pointer group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Tổng thành tích</span>
+                        <div class="w-9 h-9 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300 group-hover:scale-110 transition">
+                            <i data-lucide="layers" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="my-3">
+                        <div id="statTotalCount" class="font-mono text-3xl sm:text-4xl font-bold text-white tracking-tight">0</div>
+                        <p class="text-[11px] text-cyan-300/80 mt-1 flex items-center gap-1">
+                            <span>Xem toàn bộ hồ sơ</span>
+                            <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Ô 2: Tuyệt phẩm Ghim (Pinned) -->
+                <div onclick="setCategoryFilter('PINNED')"
+                    class="bento-card rounded-[26px] p-5 flex flex-col justify-between cursor-pointer group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-semibold text-amber-300/90 uppercase tracking-wider">Tuyệt phẩm ghim</span>
+                        <div class="w-9 h-9 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 group-hover:scale-110 transition">
+                            <i data-lucide="crown" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    <div class="my-3">
+                        <div id="statPinnedCount" class="font-mono text-3xl sm:text-4xl font-bold text-amber-300 tracking-tight">0</div>
+                        <p class="text-[11px] text-slate-400 mt-1">Dấu ấn tiêu biểu nhất</p>
+                    </div>
+                </div>
+
+                <!-- Ô 3: Phân bổ & Tỷ trọng theo 5 Danh mục (Chiếm 2 cột ngang) -->
+                <div class="col-span-2 bento-card rounded-[26px] p-5 flex flex-col justify-between space-y-3.5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="bar-chart-3" class="w-4 h-4 text-cyan-400"></i>
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-200">Cấu trúc năng lực &amp; Danh mục</span>
+                        </div>
+                        <span id="topCategoryBadge" class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                            Đa lĩnh vực
+                        </span>
+                    </div>
+
+                    <!-- Lưới 5 danh mục kèm thanh tiến độ nhỏ -->
+                    <div id="categoryStatsGrid" class="grid grid-cols-5 gap-2">
+                        <!-- Render động qua JS -->
+                    </div>
+
+                    <!-- Thanh tỷ lệ trực quan tổng hợp -->
+                    <div class="space-y-1.5 pt-1">
+                        <div id="categoryProgressBar" class="w-full h-2 rounded-full bg-slate-900 overflow-hidden flex gap-0.5 p-0.5 border border-white/5">
+                            <!-- Render các phân đoạn màu qua JS -->
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] text-slate-400">
+                            <span>Nhấn vào từng danh mục để lọc</span>
+                            <span id="lastUpdatedText" class="text-slate-400">Đã đồng bộ</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- KHU VỰC 2: THANH TÌM KIẾM THỜI GIAN THỰC & BỘ LỌC DANH MỤC -->
+        <section class="ultra-glass rounded-[26px] p-4 sm:p-5 space-y-4">
+            <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5">
+                
+                <!-- Ô tìm kiếm thông minh -->
+                <div class="relative flex-1">
+                    <i data-lucide="search" class="w-4 h-4 text-cyan-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                    <input type="text" id="searchInput" oninput="handleSearchAndFilter()"
+                        placeholder="Tìm kiếm thành tích, chứng chỉ, dự án AI, công nghệ hoặc câu chuyện..."
+                        class="w-full pl-11 pr-10 py-3 rounded-2xl bg-slate-950/90 border border-white/10 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition">
+                    <button id="clearSearchBtn" onclick="clearSearch()"
+                        class="hidden absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Sắp xếp thời gian -->
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-3">
+                    <div class="flex items-center gap-2 bg-slate-950/90 border border-white/10 rounded-2xl px-4 py-2.5 w-full sm:w-auto">
+                        <i data-lucide="calendar-clock" class="w-4 h-4 text-cyan-400 shrink-0"></i>
+                        <span class="text-xs text-slate-400 shrink-0">Thứ tự:</span>
+                        <select id="sortSelect" onchange="handleSearchAndFilter()"
+                            class="bg-transparent text-xs sm:text-sm font-semibold text-white focus:outline-none cursor-pointer pr-2 w-full">
+                            <option value="newest" class="bg-slate-900 text-white">Mới nhất trước</option>
+                            <option value="oldest" class="bg-slate-900 text-white">Cũ nhất trước</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hàng Filter Pills -->
+            <div class="flex items-center justify-between gap-3 pt-1 flex-wrap">
+                <div id="categoryFilterPills" class="flex items-center gap-2 flex-wrap">
+                    <!-- Render động qua JS -->
+                </div>
+                <div id="filterResultCounter" class="text-xs font-mono text-slate-400">
+                    Hiển thị 0 thành tích
+                </div>
+            </div>
+        </section>
+
+        <!-- KHU VỰC 3: LƯỚI THÀNH TÍCH BENTO (ACHIEVEMENTS SHOWCASE GRID) -->
+        <section>
+            <div id="achievementsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Các thẻ Bento được render bằng JavaScript -->
+            </div>
+
+            <!-- Trạng thái trống (Empty State) -->
+            <div id="emptyState" class="hidden ultra-glass rounded-[28px] p-12 text-center max-w-xl mx-auto my-6">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 border border-cyan-400/30 flex items-center justify-center mx-auto mb-4 text-cyan-300">
+                    <i data-lucide="search-x" class="w-8 h-8"></i>
+                </div>
+                <h3 class="font-display text-xl font-bold text-white mb-2">Không tìm thấy thành tích phù hợp</h3>
+                <p class="text-sm text-slate-400 mb-6">
+                    Hãy thử từ khóa khác hoặc nhấn nút bên dưới để xem lại toàn bộ danh mục thành tích.
+                </p>
+                <div class="flex items-center justify-center gap-3">
+                    <button onclick="resetFilters()"
+                        class="px-5 py-2.5 rounded-xl text-xs font-semibold text-slate-950 bg-gradient-to-r from-cyan-400 to-indigo-400 hover:brightness-110 transition">
+                        Hiển thị tất cả thành tích
+                    </button>
+                    <button onclick="openAchievementModal()"
+                        class="admin-only px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-white/10 transition flex items-center gap-1.5">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Thêm mới</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- CHÂN TRANG (FOOTER) -->
+    <footer class="relative z-10 border-t border-white/10 mt-16 py-8 text-xs text-slate-400 bg-slate-950/50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                <p class="font-medium text-slate-300">© 2026 Hồ sơ &amp; Quản lý Thành tích Cá nhân — Ultra Bento &amp; Glassmorphism Edition.</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="openShareGuideModal()" class="text-cyan-400 hover:underline flex items-center gap-1">
+                    <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+                    <span>Làm sao để gửi link cho người khác chỉ xem?</span>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================================================== -->
+    <!-- MODAL 1: THÊM MỚI / CHỈNH SỬA THÀNH TÍCH (DÀNH CHO ADMIN)                  -->
+    <!-- ========================================================================== -->
+    <div id="formModal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-xl overflow-y-auto">
+        <div class="ultra-glass w-full max-w-2xl rounded-[28px] border border-white/15 shadow-2xl overflow-hidden my-auto">
+            
+            <!-- Header Modal -->
+            <div class="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-slate-900/70">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500/30 to-cyan-400/30 border border-cyan-400/30 flex items-center justify-center text-cyan-300">
+                        <i data-lucide="award" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 id="formModalTitle" class="font-display text-lg sm:text-xl font-bold text-white">Thêm thành tích mới</h2>
+                        <p class="text-xs text-slate-400">Tự động nén ảnh qua Canvas &amp; đồng bộ vào hồ sơ của bạn</p>
+                    </div>
+                </div>
+                <button onclick="closeAchievementModal()" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Form Body -->
+            <form id="achievementForm" onsubmit="saveAchievementForm(event)" class="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
+                <input type="hidden" id="achId">
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                        Tên thành tích / Giải thưởng / Dự án <span class="text-rose-400">*</span>
+                    </label>
+                    <input type="text" id="achTitle" required
+                        placeholder="VD: Giải Nhất Hội giảng Nhà giáo Giáo dục Nghề nghiệp..."
+                        class="w-full px-4 py-3 rounded-2xl bg-slate-950/90 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                            Phân loại danh mục <span class="text-rose-400">*</span>
+                        </label>
+                        <select id="achCategory" required
+                            class="w-full px-4 py-3 rounded-2xl bg-slate-950/90 border border-white/10 text-sm text-white focus:outline-none focus:border-cyan-400 cursor-pointer">
+                            <option value="Dự án">🚀 Dự án (Project &amp; Sản phẩm)</option>
+                            <option value="Công việc">💼 Công việc (Giảng dạy &amp; Chuyên môn)</option>
+                            <option value="Giải thưởng">🏆 Giải thưởng (Danh hiệu &amp; Cúp)</option>
+                            <option value="Học tập">🎓 Học tập (Nghiên cứu &amp; Chứng chỉ)</option>
+                            <option value="Khác">✨ Khác (Hoạt động &amp; Dấu ấn)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                            Thời gian đạt được <span class="text-rose-400">*</span>
+                        </label>
+                        <input type="date" id="achDate" required
+                            class="w-full px-4 py-3 rounded-2xl bg-slate-950/90 border border-white/10 text-sm text-white focus:outline-none focus:border-cyan-400">
+                    </div>
+                </div>
+
+                <!-- Tải ảnh chứng chỉ hoặc tạo banner đồ họa -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+                            Ảnh minh họa / Chứng chỉ (Đã tối ưu dung lượng)
+                        </label>
+                        <button type="button" onclick="generateAutoBannerForForm()"
+                            class="text-xs font-semibold text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
+                            <i data-lucide="wand-2" class="w-3.5 h-3.5"></i>
+                            <span>Vẽ ảnh bìa tự động theo tên</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 items-center">
+                        <div onclick="document.getElementById('achImageInput').click()"
+                            class="sm:col-span-3 border-2 border-dashed border-white/15 hover:border-cyan-400/60 rounded-2xl p-4 text-center cursor-pointer bg-slate-950/60 hover:bg-slate-900 transition flex flex-col items-center justify-center min-h-[128px]">
+                            <i data-lucide="image-plus" class="w-7 h-7 text-cyan-400 mb-2"></i>
+                            <p class="text-xs font-medium text-slate-200">Nhấn để chọn ảnh chứng chỉ / sản phẩm từ máy</p>
+                            <p class="text-[11px] text-slate-400 mt-1">Tự động nén qua HTML5 Canvas giúp lưu trữ cực nhẹ</p>
+                            <input type="file" id="achImageInput" accept="image/*" class="hidden" onchange="handleAchievementImageUpload(event)">
+                        </div>
+
+                        <div class="sm:col-span-2 relative h-32 rounded-2xl overflow-hidden bg-slate-950 border border-white/10 flex items-center justify-center">
+                            <img id="achImagePreview" src="" alt="Preview" class="w-full h-full object-cover hidden">
+                            <div id="achImagePlaceholder" class="text-center p-3 text-slate-500 text-xs">
+                                <i data-lucide="image" class="w-6 h-6 mx-auto mb-1 opacity-50"></i>
+                                <span>Chưa có ảnh</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                        Đường dẫn minh chứng / Link dự án (Tùy chọn)
+                    </label>
+                    <div class="relative">
+                        <i data-lucide="link" class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+                        <input type="url" id="achLink"
+                            placeholder="https://github.com/... hoặc link bài báo, sản phẩm thực tế"
+                            class="w-full pl-11 pr-4 py-2.5 rounded-2xl bg-slate-950/90 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                        Ghi chú chi tiết &amp; Câu chuyện đằng sau thành tích <span class="text-rose-400">*</span>
+                    </label>
+                    <textarea id="achNotes" rows="4" required
+                        placeholder="Mô tả kết quả đạt được, vai trò của bạn, công nghệ sử dụng hoặc kỷ niệm đáng nhớ..."
+                        class="w-full px-4 py-3 rounded-2xl bg-slate-950/90 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 leading-relaxed"></textarea>
+                </div>
+
+                <label for="achPinned" class="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-cyan-500/10 border border-amber-400/30 cursor-pointer">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300">
+                            <i data-lucide="crown" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <span class="text-sm font-semibold text-white block">Đánh dấu là "Tuyệt phẩm Ghim" (Nổi bật)</span>
+                            <span class="text-xs text-slate-400">Hiển thị viền vàng sang trọng và ưu tiên ghim lên đầu trang</span>
+                        </div>
+                    </div>
+                    <input type="checkbox" id="achPinned" class="w-5 h-5 accent-amber-400 rounded cursor-pointer">
+                </label>
+
+                <div class="pt-3 border-t border-white/10 flex items-center justify-end gap-3">
+                    <button type="button" onclick="closeAchievementModal()"
+                        class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-300 hover:text-white bg-slate-800 transition">
+                        Hủy
+                    </button>
+                    <button type="submit"
+                        class="px-6 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-950 bg-gradient-to-r from-indigo-400 via-cyan-300 to-emerald-300 hover:brightness-110 transition shadow-lg shadow-cyan-500/20 flex items-center gap-2">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 stroke-[2.5]"></i>
+                        <span>Lưu thành tích</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================================== -->
+    <!-- MODAL 2: MAGAZINE LIGHTBOX MODAL (XEM CHI TIẾT & CHUYỂN BÀI TRƯỚC/SAU)     -->
+    <!-- ========================================================================== -->
+    <div id="detailModal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-slate-950/90 backdrop-blur-2xl overflow-y-auto" onclick="handleBackdropClick(event, 'detailModal')">
+        <div class="ultra-glass w-full max-w-4xl rounded-[30px] border border-white/15 shadow-2xl overflow-hidden my-auto">
+            
+            <!-- Khu vực Trình chiếu Ảnh Chứng chỉ / Dự án -->
+            <div class="relative h-64 sm:h-80 md:h-[26rem] bg-[#02040a] overflow-hidden select-none">
+                <img id="detailImage" src="" alt="Achievement Image" class="w-full h-full object-contain">
+                <div class="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#070b19] via-[#070b19]/70 to-transparent pointer-events-none"></div>
+
+                <!-- Nút điều hướng Trước / Tiếp theo ngay trên Lightbox -->
+                <button onclick="navigateDetailModal(-1)" title="Thành tích trước (Phím mũi tên trái)"
+                    class="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-950/75 hover:bg-slate-900 text-white border border-white/15 flex items-center justify-center backdrop-blur-md transition hover:scale-110">
+                    <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                </button>
+                <button onclick="navigateDetailModal(1)" title="Thành tích tiếp theo (Phím mũi tên phải)"
+                    class="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-950/75 hover:bg-slate-900 text-white border border-white/15 flex items-center justify-center backdrop-blur-md transition hover:scale-110">
+                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                </button>
+
+                <!-- Nút đóng góc phải trên -->
+                <button onclick="closeDetailModal()"
+                    class="absolute top-4 right-4 w-10 h-10 rounded-full bg-slate-950/80 text-slate-200 hover:text-white border border-white/15 flex items-center justify-center backdrop-blur-md transition hover:scale-105">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+
+                <!-- Nhãn Danh mục & Thời gian trên ảnh -->
+                <div class="absolute bottom-4 left-6 right-6 flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span id="detailCategoryBadge" class="px-3.5 py-1 rounded-full text-xs font-semibold border backdrop-blur-md"></span>
+                        <span id="detailPinnedBadge" class="hidden shimmer-badge px-3.5 py-1 rounded-full text-xs font-bold text-amber-200 border border-amber-400/50 backdrop-blur-md flex items-center gap-1.5">
+                            <i data-lucide="crown" class="w-3.5 h-3.5 text-amber-300"></i>
+                            <span>Tuyệt phẩm Ghim</span>
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-mono text-slate-200 bg-slate-950/85 px-3.5 py-1 rounded-full border border-white/10">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5 text-cyan-400"></i>
+                        <span id="detailDate"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nội dung Câu chuyện chi tiết -->
+            <div class="p-6 sm:p-8 space-y-6 bg-[#070b19]">
+                <div class="space-y-2">
+                    <h2 id="detailTitle" class="font-display text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-snug"></h2>
+                </div>
+
+                <!-- Khung Câu chuyện & Ghi chú -->
+                <div class="rounded-2xl bg-slate-900/75 border border-white/10 p-5 sm:p-6 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-cyan-400">
+                            <i data-lucide="book-open-text" class="w-4 h-4"></i>
+                            <span>Hồ sơ chi tiết &amp; Câu chuyện đằng sau thành tích</span>
+                        </div>
+                        <span id="detailIndexIndicator" class="text-xs font-mono text-slate-400">1 / 3</span>
+                    </div>
+                    <div id="detailNotes" class="text-sm sm:text-base text-slate-200 whitespace-pre-line leading-relaxed pt-1"></div>
+                </div>
+
+                <!-- Footer Lightbox: Link minh chứng + Công cụ Admin (Chỉ hiện khi đã mở khóa PIN) -->
+                <div class="pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div id="detailLinkContainer" class="hidden">
+                            <a id="detailLink" href="#" target="_blank" rel="noopener noreferrer"
+                                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-950 bg-gradient-to-r from-cyan-300 to-indigo-300 hover:brightness-110 transition shadow-lg shadow-cyan-500/15">
+                                <i data-lucide="external-link" class="w-4 h-4"></i>
+                                <span id="detailLinkText">Xem minh chứng / Dự án thực tế</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Các nút chỉnh sửa trong Lightbox chỉ hiện cho Admin -->
+                    <div class="admin-only flex items-center gap-2">
+                        <button id="detailTogglePinBtn"
+                            class="px-3.5 py-2 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-amber-300 border border-white/10 transition flex items-center gap-1.5">
+                            <i data-lucide="crown" class="w-4 h-4"></i>
+                            <span>Đổi trạng thái Ghim</span>
+                        </button>
+                        <button id="detailEditBtn"
+                            class="px-3.5 py-2 rounded-xl text-xs font-medium bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 border border-indigo-500/30 transition flex items-center gap-1.5">
+                            <i data-lucide="pencil" class="w-4 h-4"></i>
+                            <span>Sửa</span>
+                        </button>
+                        <button id="detailDeleteBtn"
+                            class="px-3.5 py-2 rounded-xl text-xs font-medium bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 transition flex items-center gap-1.5">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            <span>Xóa</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================== -->
+    <!-- MODAL 3: MỞ KHÓA QUẢN TRỊ BẰNG MÃ PIN & ĐỔI MÃ PIN                         -->
+    <!-- ========================================================================== -->
+    <div id="pinModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/85 backdrop-blur-xl" onclick="handleBackdropClick(event, 'pinModal')">
+        <div class="ultra-glass w-full max-w-md rounded-[28px] p-6 sm:p-7 border border-white/15 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-400/30 text-amber-300 flex items-center justify-center">
+                        <i data-lucide="key-round" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 id="pinModalTitle" class="font-display text-lg font-bold text-white">Mở khóa Chế độ Quản trị</h3>
+                        <p id="pinModalSubtitle" class="text-xs text-slate-400">Chỉ chủ sở hữu hồ sơ mới có quyền Thêm / Sửa / Xóa</p>
+                    </div>
+                </div>
+                <button onclick="closePinModal()" class="p-1.5 rounded-xl text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handlePinSubmit(event)" class="space-y-4">
+                <input type="hidden" id="pinModalMode" value="unlock">
+                <div>
+                    <label id="pinInputLabel" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                        Nhập mã PIN Quản trị (Mặc định: 2026)
+                    </label>
+                    <input type="password" id="pinCodeInput" required maxlength="12"
+                        placeholder="••••"
+                        class="w-full px-4 py-3.5 rounded-2xl bg-slate-950 border border-white/15 text-center font-mono text-xl tracking-[0.4em] text-cyan-300 focus:outline-none focus:border-cyan-400">
+                </div>
+
+                <p class="text-[11px] text-slate-400 leading-relaxed bg-slate-900/70 p-3 rounded-xl border border-white/5">
+                    💡 <strong class="text-slate-200">Bảo vệ quyền riêng tư:</strong> Người khác khi mở link mặc định ở <em>Chế độ Khách (Chỉ xem)</em>. Khi mở khóa Quản trị, bạn có thể cập nhật thành tích và xuất file <code class="text-cyan-300">index.html</code> đã nhúng sẵn dữ liệu.
+                </p>
+
+                <div class="flex items-center gap-3 pt-1">
+                    <button type="button" onclick="closePinModal()"
+                        class="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 transition">
+                        Đóng
+                    </button>
+                    <button type="submit"
+                        class="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-950 bg-gradient-to-r from-amber-300 via-yellow-300 to-cyan-300 hover:brightness-110 transition shadow-lg">
+                        Xác nhận
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================================== -->
+    <!-- MODAL 4: HƯỚNG DẪN CHIA SẺ LINK & ĐÓNG GÓI HỒ SƠ                           -->
+    <!-- ========================================================================== -->
+    <div id="shareGuideModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/85 backdrop-blur-xl overflow-y-auto" onclick="handleBackdropClick(event, 'shareGuideModal')">
+        <div class="ultra-glass w-full max-w-xl rounded-[28px] p-6 sm:p-8 border border-white/15 shadow-2xl space-y-5 my-auto">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-cyan-500/20 border border-cyan-400/30 text-cyan-300 flex items-center justify-center">
+                        <i data-lucide="share-2" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-display text-lg sm:text-xl font-bold text-white">Chia sẻ Hồ sơ &amp; Bảo vệ Dữ liệu</h3>
+                        <p class="text-xs text-slate-400">Giải pháp triệt để giúp người xem thấy đủ thành tích và không thể sửa xóa</p>
+                    </div>
+                </div>
+                <button onclick="closeShareGuideModal()" class="p-1.5 rounded-xl text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3.5 text-xs sm:text-sm text-slate-300 leading-relaxed">
+                <div class="p-4 rounded-2xl bg-slate-900/80 border border-white/10 space-y-1.5">
+                    <div class="font-semibold text-cyan-300 flex items-center gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                        <span>1. Chế độ Khách (Viewer Mode) mặc định</span>
+                    </div>
+                    <p class="text-slate-400 text-xs">
+                        Mọi người khi mở trang đều ở <strong class="text-white">Chế độ Khách (Chỉ xem)</strong>. Toàn bộ nút Thêm/Sửa/Xóa đã được khóa bằng mã PIN của bạn (mặc định: <code class="text-amber-300 font-mono">2026</code>).
+                    </p>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-slate-900/80 border border-amber-400/25 space-y-2">
+                    <div class="font-semibold text-amber-300 flex items-center gap-2">
+                        <i data-lucide="package-check" class="w-4 h-4"></i>
+                        <span>2. Xuất file index.html đã nhúng cứng thành tích (Khuyên dùng khi gửi file / đưa lên Hosting)</span>
+                    </div>
+                    <p class="text-slate-400 text-xs">
+                        Vì <code class="text-slate-200">LocalStorage</code> chỉ lưu trên máy của bạn, sau khi thêm thành tích xong ở chế độ Admin, hãy bấm nút <strong class="text-amber-200">"Xuất file index.html (Đã nhúng dữ liệu)"</strong>. Hệ thống sẽ tạo ra một file <code class="text-cyan-300">index.html</code> mới chứa sẵn toàn bộ ảnh, ghi chú và thành tích của bạn bên trong code! Bạn gửi file đó hoặc đưa lên GitHub Pages / Vercel thì bất kỳ ai bấm vào link cũng xem được ngay.
+                    </p>
+                    <div class="pt-1">
+                        <button onclick="exportBakedHtmlFile()"
+                            class="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-300 via-yellow-300 to-cyan-300 hover:brightness-110 transition flex items-center justify-center gap-2">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>Tải xuống file index.html (Đã nhúng toàn bộ thành tích hiện tại)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-2 flex justify-end">
+                <button onclick="closeShareGuideModal()"
+                    class="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 transition">
+                    Đã hiểu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================== -->
+    <!-- MODAL 5: HỘP THOẠI XÁC NHẬN AN TOÀN                                        -->
+    <!-- ========================================================================== -->
+    <div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
+        <div class="ultra-glass w-full max-w-md rounded-[28px] p-6 border border-white/15 shadow-2xl text-center space-y-4">
+            <div class="w-14 h-14 rounded-2xl bg-rose-500/20 border border-rose-500/30 text-rose-400 flex items-center justify-center mx-auto">
+                <i data-lucide="alert-triangle" class="w-7 h-7"></i>
+            </div>
+            <h3 id="confirmModalTitle" class="font-display text-lg font-bold text-white">Xác nhận xóa thành tích?</h3>
+            <p id="confirmModalDesc" class="text-xs sm:text-sm text-slate-300 leading-relaxed"></p>
+            <div class="pt-2 flex items-center justify-center gap-3">
+                <button onclick="closeConfirmModal()"
+                    class="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 transition">
+                    Giữ lại
+                </button>
+                <button id="confirmActionBtn"
+                    class="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-rose-500 to-red-600 hover:brightness-110 transition shadow-lg shadow-rose-500/25">
+                    Đồng ý thực hiện
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KHAY THÔNG BÁO TOAST -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- ========================================================================== -->
+    <!-- MÃ NGUỒN JAVASCRIPT & TÍCH HỢP ĐỒNG BỘ ĐÁM MÂY + ĐÓNG GÓI FILE HTML        -->
+    <!-- ========================================================================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Khởi tạo kết nối đám mây tự động nếu môi trường hỗ trợ
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'personal-achievement-portfolio';
+
+        async function initCloudSync() {
+            try {
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    const app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    onAuthStateChanged(auth, (user) => {
+                        currentUser = user;
+                        if (user && db) {
+                            const portfolioDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'portfolio_store', 'main_portfolio');
+                            onSnapshot(
+                                portfolioDocRef,
+                                (snapshot) => {
+                                    if (snapshot.exists()) {
+                                        const cloudData = snapshot.data();
+                                        if (cloudData && cloudData.payload) {
+                                            try {
+                                                const parsed = JSON.parse(cloudData.payload);
+                                                window.applyExternalPortfolioData(parsed, 'Đã đồng bộ Cloud thời gian thực');
+                                            } catch (e) {
+                                                console.error('Lỗi giải mã dữ liệu Cloud:', e);
+                                            }
+                                        }
+                                    } else {
+                                        // Nếu trên Cloud chưa có, đẩy dữ liệu khởi tạo lên Cloud
+                                        window.pushPortfolioToCloud();
+                                    }
+                                },
+                                (error) => {
+                                    console.warn('Chế độ ngoại tuyến / Local:', error.message);
+                                }
+                            );
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn('Sử dụng chế độ lưu trữ cục bộ & Bake-in HTML:', e);
+            }
+        }
+
+        window.pushPortfolioToCloud = async function() {
+            if (!db || !currentUser || !window.getPortfolioState) return;
+            try {
+                const state = window.getPortfolioState();
+                const portfolioDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'portfolio_store', 'main_portfolio');
+                await setDoc(portfolioDocRef, {
+                    payload: JSON.stringify(state),
+                    updatedAt: Date.now(),
+                    updatedBy: currentUser.uid
+                });
+                const syncText = document.getElementById('syncStatusText');
+                if (syncText) syncText.textContent = 'Đã đồng bộ Đám mây (Mọi người xem link đều thấy)';
+            } catch (e) {
+                console.warn('Không thể ghi lên Cloud (dữ liệu vẫn được lưu Local):', e);
+            }
+        };
+
+        initCloudSync();
+    </script>
+
+    <script>
+        /**
+         * HẰNG SỐ LƯU TRỮ VÀ CẤU HÌNH 5 DANH MỤC
+         */
+        const STORAGE_KEY = 'PERSONAL_ACHIEVEMENT_PORTFOLIO_V2';
+
+        const CATEGORY_CONFIG = {
+            'Dự án': {
+                icon: 'rocket',
+                badgeClass: 'bg-cyan-500/15 text-cyan-300 border-cyan-400/35',
+                dotClass: 'bg-cyan-400',
+                barColor: '#22d3ee',
+                accentFrom: '#06b6d4',
+                accentTo: '#3b82f6'
+            },
+            'Công việc': {
+                icon: 'briefcase',
+                badgeClass: 'bg-indigo-500/15 text-indigo-300 border-indigo-400/35',
+                dotClass: 'bg-indigo-400',
+                barColor: '#818cf8',
+                accentFrom: '#6366f1',
+                accentTo: '#8b5cf6'
+            },
+            'Giải thưởng': {
+                icon: 'trophy',
+                badgeClass: 'bg-amber-500/15 text-amber-300 border-amber-400/35',
+                dotClass: 'bg-amber-400',
+                barColor: '#fbbf24',
+                accentFrom: '#f59e0b',
+                accentTo: '#ec4899'
+            },
+            'Học tập': {
+                icon: 'graduation-cap',
+                badgeClass: 'bg-emerald-500/15 text-emerald-300 border-emerald-400/35',
+                dotClass: 'bg-emerald-400',
+                barColor: '#34d399',
+                accentFrom: '#10b981',
+                accentTo: '#06b6d4'
+            },
+            'Khác': {
+                icon: 'sparkles',
+                badgeClass: 'bg-purple-500/15 text-purple-300 border-purple-400/35',
+                dotClass: 'bg-purple-400',
+                barColor: '#c084fc',
+                accentFrom: '#a855f7',
+                accentTo: '#ec4899'
+            }
+        };
+
+        /**
+         * TRẠNG THÁI ỨNG DỤNG & QUYỀN QUẢN TRỊ
+         * Mặc định isAdmin = false (Chế độ Khách - Chỉ xem) để bảo vệ hồ sơ khi chia sẻ link
+         */
+        let isAdmin = false;
+        let activeCategoryFilter = 'ALL';
+        let currentUploadedImageBase64 = '';
+        let currentFilteredList = [];
+        let currentDetailModalId = null;
+
+        let appState = {
+            adminPin: '2026',
+            profile: {
+                name: 'Nguyễn Hoàng Đức',
+                role: 'Giảng viên CNTT & Nhà phát triển Web / AI — Trường Cao đẳng Cơ điện Hà Nội',
+                motto: '“Kiến tạo tri thức số, kết nối công nghệ AI thực tiễn và truyền cảm hứng sáng tạo trong từng bài giảng & dự án.”',
+                location: 'Hà Nội, Việt Nam (HCEM)',
+                specialty: 'Web Fullstack, AI & EdTech',
+                contact: 'hoangduc.cntt@hcem.edu.vn',
+                avatar: ''
+            },
+            achievements: []
+        };
+
+        window.getPortfolioState = () => appState;
+
+        /**
+         * 1. HÀM VẼ AVATAR & ẢNH BÌA CHỨNG NHẬN BẰNG HTML5 CANVAS
+         */
+        function createDefaultAvatarBase64(initials = 'HĐ') {
+            const canvas = document.createElement('canvas');
+            canvas.width = 360;
+            canvas.height = 360;
+            const ctx = canvas.getContext('2d');
+
+            const grad = ctx.createLinearGradient(0, 0, 360, 360);
+            grad.addColorStop(0, '#1e1b4b');
+            grad.addColorStop(0.5, '#4f46e5');
+            grad.addColorStop(1, '#06b6d4');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 360, 360);
+
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(180, 180, 142, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '800 112px "Plus Jakarta Sans", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(initials, 180, 186);
+
+            return canvas.toDataURL('image/jpeg', 0.86);
+        }
+
+        function createSampleBannerBase64(title, subtitle, category, badgeCode) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 880;
+            canvas.height = 500;
+            const ctx = canvas.getContext('2d');
+            const cfg = CATEGORY_CONFIG[category] || CATEGORY_CONFIG['Dự án'];
+
+            const bgGrad = ctx.createLinearGradient(0, 0, 880, 500);
+            bgGrad.addColorStop(0, '#050814');
+            bgGrad.addColorStop(0.55, '#0f172a');
+            bgGrad.addColorStop(1, '#090d1a');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, 880, 500);
+
+            const glow1 = ctx.createRadialGradient(740, 110, 20, 740, 110, 340);
+            glow1.addColorStop(0, cfg.accentFrom + '66');
+            glow1.addColorStop(1, 'transparent');
+            ctx.fillStyle = glow1;
+            ctx.fillRect(0, 0, 880, 500);
+
+            const glow2 = ctx.createRadialGradient(140, 420, 20, 140, 420, 290);
+            glow2.addColorStop(0, cfg.accentTo + '55');
+            glow2.addColorStop(1, 'transparent');
+            ctx.fillStyle = glow2;
+            ctx.fillRect(0, 0, 880, 500);
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < 880; x += 40) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 500); ctx.stroke();
+            }
+            for (let y = 0; y < 500; y += 40) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(880, y); ctx.stroke();
+            }
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(36, 36, 808, 428);
+
+            ctx.fillStyle = cfg.accentFrom;
+            ctx.font = '700 20px "Space Grotesk", sans-serif';
+            ctx.fillText('● ' + category.toUpperCase() + '  |  ' + badgeCode, 68, 92);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '800 37px "Plus Jakarta Sans", sans-serif';
+            wrapCanvasText(ctx, title, 68, 172, 740, 48);
+
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '500 21px "Inter", sans-serif';
+            wrapCanvasText(ctx, subtitle, 68, 335, 740, 32);
+
+            const barGrad = ctx.createLinearGradient(68, 420, 360, 420);
+            barGrad.addColorStop(0, cfg.accentFrom);
+            barGrad.addColorStop(1, cfg.accentTo);
+            ctx.fillStyle = barGrad;
+            ctx.fillRect(68, 415, 250, 6);
+
+            return canvas.toDataURL('image/jpeg', 0.82);
+        }
+
+        function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
+            const words = (text || '').split(' ');
+            let line = '';
+            let currentY = y;
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth && n > 0) {
+                    ctx.fillText(line, x, currentY);
+                    line = words[n] + ' ';
+                    currentY += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, x, currentY);
+        }
+
+        /**
+         * 2. NÉN ẢNH TỰ ĐỘNG QUA HTML5 CANVAS
+         */
+        function compressImageFile(file, maxWidth = 900, quality = 0.76) {
+            return new Promise((resolve, reject) => {
+                if (!file || !file.type.startsWith('image/')) {
+                    reject(new Error('Vui lòng chọn tệp hình ảnh hợp lệ.'));
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+                        if (width > maxWidth) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = '#040711';
+                        ctx.fillRect(0, 0, width, height);
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.onerror = () => reject(new Error('Không thể đọc dữ liệu ảnh.'));
+                    img.src = event.target.result;
+                };
+                reader.onerror = () => reject(new Error('Lỗi khi tải tệp từ máy tính.'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        /**
+         * 3. KHỞI TẠO DỮ LIỆU MẪU BAN ĐẦU
+         */
+        function getInitialSampleData() {
+            return {
+                adminPin: '2026',
+                profile: {
+                    name: 'Nguyễn Hoàng Đức',
+                    role: 'Giảng viên CNTT & Nhà phát triển Web / AI — Trường Cao đẳng Cơ điện Hà Nội',
+                    motto: '“Kiến tạo tri thức số, kết nối công nghệ AI thực tiễn và truyền cảm hứng sáng tạo trong từng bài giảng & dự án.”',
+                    location: 'Hà Nội, Việt Nam (HCEM)',
+                    specialty: 'Web Fullstack, AI & EdTech',
+                    contact: 'hoangduc.cntt@hcem.edu.vn',
+                    avatar: createDefaultAvatarBase64('HĐ')
+                },
+                achievements: [
+                    {
+                        id: 'ach-sample-1',
+                        title: 'Dự án Nghiên cứu "Popcorn Brain Study & P.O.P Model" tích hợp POP-AI Assistant',
+                        category: 'Học tập',
+                        date: '2026-08-15',
+                        pinned: true,
+                        link: 'https://example.com/popcorn-brain-study',
+                        image: createSampleBannerBase64(
+                            'Popcorn Brain Study & Mô hình P.O.P',
+                            'Nghiên cứu khoa học về sự tập trung thời đại số & Trợ lý tư vấn POP-AI thông minh',
+                            'Học tập',
+                            'RESEARCH & AI 2026'
+                        ),
+                        notes: `• Chủ trì xây dựng nền tảng web tương tác nghiên cứu hiện tượng "Popcorn Brain" (Não bộ bỏng ngô) ở người trẻ dưới tác động của nội dung số ngắn.\n• Đề xuất mô hình giải pháp P.O.P (Pause - Observe - Prioritize) giúp tái thiết lập khả năng tập trung sâu.\n• Tích hợp trực tiếp trợ lý ảo thông minh POP-AI Assistant hỗ trợ đánh giá mức độ xao nhãng và gợi ý lộ trình rèn luyện cá nhân hóa.`
+                    },
+                    {
+                        id: 'ach-sample-2',
+                        title: 'Phát triển Ứng dụng Trợ lý Ẩm thực Giọng nói Thông minh "Mind AI\'s Kitchen"',
+                        category: 'Dự án',
+                        date: '2026-06-20',
+                        pinned: true,
+                        link: 'https://example.com/mind-ai-kitchen',
+                        image: createSampleBannerBase64(
+                            "Mind AI's Kitchen — Voice Culinary Assistant",
+                            'Ứng dụng Web điều khiển bằng giọng nói tiếng Việt & Gợi ý công thức nấu ăn thời gian thực',
+                            'Dự án',
+                            'FULLSTACK AI PROJECT'
+                        ),
+                        notes: `• Thiết kế và lập trình ứng dụng trợ lý nhà bếp thông minh cho phép người dùng tra cứu công thức, đặt hẹn giờ và nghe hướng dẫn từng bước hoàn toàn bằng giọng nói (Hands-free).\n• Tối ưu hóa giao diện Bento Dark UI trực quan, tích hợp xử lý ngôn ngữ tự nhiên giúp gợi ý món ăn dựa trên nguyên liệu sẵn có trong tủ lạnh.\n• Ứng dụng đạt tốc độ phản hồi nhanh và tương thích mượt mà trên cả điện thoại lẫn máy tính bảng.`
+                    },
+                    {
+                        id: 'ach-sample-3',
+                        title: 'Chứng nhận Đổi mới Sáng tạo Học liệu Số & Bài giảng Tương tác 3D tại Khoa CNTT - HCEM',
+                        category: 'Giải thưởng',
+                        date: '2026-03-26',
+                        pinned: false,
+                        link: 'https://hcem.edu.vn',
+                        image: createSampleBannerBase64(
+                            'Đổi Mới Học Liệu Số & Bài Giảng Tương Tác 3D',
+                            'Khoa Công nghệ Thông tin — Trường Cao đẳng Cơ điện Hà Nội (HCEM)',
+                            'Giải thưởng',
+                            'EXCELLENCE IN TEACHING'
+                        ),
+                        notes: `• Ứng dụng đồ họa tương tác Web 3D, mô phỏng trực quan thuật toán và cấu trúc phần cứng vào chương trình giảng dạy tại Khoa Công nghệ Thông tin - Trường Cao đẳng Cơ điện Hà Nội.\n• Giúp sinh viên tiếp cận kiến thức lập trình và công nghệ mới một cách sinh động, tăng 45% mức độ tương tác và hoàn thành bài tập thực hành tại lớp.\n• Được hội đồng chuyên môn đánh giá cao về tính thực tiễn và khả năng nhân rộng trong đào tạo nghề chất lượng cao.`
+                    }
+                ]
+            };
+        }
+
+        /**
+         * 4. TẢI DỮ LIỆU TỪ 3 NGUỒN ƯU TIÊN:
+         * (1) Dữ liệu nhúng cứng trong file HTML (`window.__BAKED_PORTFOLIO_DATA__`) +
+         * (2) LocalStorage trên trình duyệt +
+         * (3) Đồng bộ thời gian thực từ Cloud Firestore
+         */
+        function loadFromStorage() {
+            try {
+                const rawLocal = localStorage.getItem(STORAGE_KEY);
+                const bakedData = window.__BAKED_PORTFOLIO_DATA__;
+
+                if (rawLocal) {
+                    const parsed = JSON.parse(rawLocal);
+                    mergeIntoAppState(parsed);
+                } else if (bakedData && typeof bakedData === 'object') {
+                    mergeIntoAppState(bakedData);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+                } else {
+                    appState = getInitialSampleData();
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+                }
+            } catch (err) {
+                console.error('Khởi tạo dữ liệu mặc định:', err);
+                appState = getInitialSampleData();
+            }
+            updateStorageUsageBadge();
+        }
+
+        function mergeIntoAppState(source) {
+            const sample = getInitialSampleData();
+            appState = {
+                adminPin: source.adminPin || sample.adminPin || '2026',
+                profile: {
+                    ...sample.profile,
+                    ...(source.profile || {})
+                },
+                achievements: Array.isArray(source.achievements) ? source.achievements : sample.achievements
+            };
+            if (!appState.profile.avatar) {
+                appState.profile.avatar = createDefaultAvatarBase64('HĐ');
+            }
+        }
+
+        window.applyExternalPortfolioData = function(parsedData, statusLabel = 'Đã đồng bộ dữ liệu') {
+            if (!parsedData) return;
+            mergeIntoAppState(parsedData);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            renderProfileHero();
+            renderStatsAndFilters();
+            handleSearchAndFilter();
+            updateStorageUsageBadge();
+            const lastUpdatedEl = document.getElementById('lastUpdatedText');
+            if (lastUpdatedEl) lastUpdatedEl.textContent = statusLabel;
+        };
+
+        function saveToStorage(showNotification = false) {
+            try {
+                const serialized = JSON.stringify(appState);
+                localStorage.setItem(STORAGE_KEY, serialized);
+                updateStorageUsageBadge();
+
+                // Đồng bộ lên Cloud nếu có kết nối
+                if (typeof window.pushPortfolioToCloud === 'function') {
+                    window.pushPortfolioToCloud();
+                }
+
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('lastUpdatedText').textContent = `Đã lưu lúc ${timeStr}`;
+                if (showNotification) {
+                    showToast('Đã lưu và đồng bộ thay đổi!', 'success');
+                }
+            } catch (err) {
+                showToast('Bộ nhớ trình duyệt gần đầy! Hãy xuất file để sao lưu.', 'error');
+            }
+        }
+
+        function updateStorageUsageBadge() {
+            const raw = localStorage.getItem(STORAGE_KEY) || '';
+            const bytes = new Blob([raw]).size;
+            const kb = (bytes / 1024).toFixed(1);
+            const badge = document.getElementById('storageBadge');
+            if (badge) badge.textContent = `${kb} KB`;
+        }
+
+        /**
+         * 5. QUẢN LÝ PHÂN QUYỀN: CHẾ ĐỘ KHÁCH (VIEWER) vs CHẾ ĐỘ QUẢN TRỊ (ADMIN)
+         */
+        function applyPermissionModeUI() {
+            const body = document.body;
+            const badge = document.getElementById('modeStatusBadge');
+            const editableFields = document.querySelectorAll('.editable-field');
+            const avatarWrapper = document.getElementById('avatarWrapper');
+
+            if (isAdmin) {
+                body.classList.add('is-admin');
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-cyan-500/20 text-cyan-200 border border-cyan-400/40';
+                badge.innerHTML = `<i data-lucide="shield-check" class="w-3 h-3 text-cyan-300"></i><span>Chế độ Quản trị (Admin)</span>`;
+                editableFields.forEach(el => el.setAttribute('contenteditable', 'true'));
+                if (avatarWrapper) avatarWrapper.classList.add('cursor-pointer');
+            } else {
+                body.classList.remove('is-admin');
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-800/90 text-slate-300 border border-white/10';
+                badge.innerHTML = `<i data-lucide="eye" class="w-3 h-3 text-cyan-400"></i><span>Chế độ Khách (Chỉ xem)</span>`;
+                editableFields.forEach(el => el.setAttribute('contenteditable', 'false'));
+                if (avatarWrapper) avatarWrapper.classList.remove('cursor-pointer');
+            }
+
+            handleSearchAndFilter();
+            lucide.createIcons();
+        }
+
+        function openPinModal() {
+            document.getElementById('pinModalMode').value = 'unlock';
+            document.getElementById('pinModalTitle').textContent = 'Mở khóa Chế độ Quản trị';
+            document.getElementById('pinModalSubtitle').textContent = 'Chỉ chủ sở hữu hồ sơ mới có quyền Thêm / Sửa / Xóa';
+            document.getElementById('pinInputLabel').textContent = 'Nhập mã PIN Quản trị (Mặc định: 2026)';
+            const input = document.getElementById('pinCodeInput');
+            input.value = '';
+            const modal = document.getElementById('pinModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => input.focus(), 80);
+            lucide.createIcons();
+        }
+
+        function openChangePinModal() {
+            if (!isAdmin) return;
+            document.getElementById('pinModalMode').value = 'change';
+            document.getElementById('pinModalTitle').textContent = 'Đổi Mã PIN Quản trị mới';
+            document.getElementById('pinModalSubtitle').textContent = 'Mã PIN mới sẽ được lưu vào hồ sơ của bạn';
+            document.getElementById('pinInputLabel').textContent = 'Nhập mã PIN mới (Từ 4 - 12 ký tự)';
+            const input = document.getElementById('pinCodeInput');
+            input.value = '';
+            const modal = document.getElementById('pinModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => input.focus(), 80);
+            lucide.createIcons();
+        }
+
+        function closePinModal() {
+            const modal = document.getElementById('pinModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function handlePinSubmit(event) {
+            event.preventDefault();
+            const mode = document.getElementById('pinModalMode').value;
+            const enteredPin = document.getElementById('pinCodeInput').value.trim();
+
+            if (mode === 'unlock') {
+                const currentPin = String(appState.adminPin || '2026');
+                if (enteredPin === currentPin) {
+                    isAdmin = true;
+                    closePinModal();
+                    applyPermissionModeUI();
+                    showToast('Đã mở khóa Chế độ Quản trị! Bạn có thể chỉnh sửa hồ sơ.', 'success');
+                } else {
+                    showToast('Mã PIN không chính xác! Vui lòng thử lại.', 'error');
+                }
+            } else if (mode === 'change') {
+                if (enteredPin.length < 4) {
+                    showToast('Mã PIN mới phải có ít nhất 4 ký tự!', 'error');
+                    return;
+                }
+                appState.adminPin = enteredPin;
+                saveToStorage(false);
+                closePinModal();
+                showToast('Đã cập nhật mã PIN Quản trị mới thành công!', 'success');
+            }
+        }
+
+        function lockAdminMode() {
+            isAdmin = false;
+            applyPermissionModeUI();
+            showToast('Đã khóa lại về Chế độ Khách (Chỉ xem).', 'info');
+        }
+
+        /**
+         * 6. HIỂN THỊ & CHỈNH SỬA HỒ SƠ CÁ NHÂN (HERO BENTO)
+         */
+        function renderProfileHero() {
+            document.getElementById('profileAvatar').src = appState.profile.avatar;
+            document.getElementById('profileName').textContent = appState.profile.name;
+            document.getElementById('profileRole').textContent = appState.profile.role;
+            document.getElementById('profileMotto').textContent = appState.profile.motto;
+            document.getElementById('profileLocation').textContent = appState.profile.location || 'Hà Nội, Việt Nam';
+            document.getElementById('profileSpecialty').textContent = appState.profile.specialty || 'Web Fullstack & AI';
+            document.getElementById('profileContact').textContent = appState.profile.contact || 'Liên hệ công việc';
+        }
+
+        function setupInlineProfileEditing() {
+            const editableElements = document.querySelectorAll('.editable-field');
+            editableElements.forEach((el) => {
+                el.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        el.blur();
+                    }
+                });
+
+                el.addEventListener('blur', () => {
+                    if (!isAdmin) return;
+                    const field = el.getAttribute('data-field');
+                    const newValue = el.textContent.trim();
+                    if (!newValue) {
+                        el.textContent = appState.profile[field];
+                        return;
+                    }
+                    if (appState.profile[field] !== newValue) {
+                        appState.profile[field] = newValue;
+                        saveToStorage(false);
+                        showToast('Đã lưu thông tin hồ sơ!', 'success');
+                    }
+                });
+            });
+        }
+
+        function triggerAvatarUpload() {
+            if (!isAdmin) return;
+            document.getElementById('avatarUploadInput').click();
+        }
+
+        async function handleAvatarUpload(event) {
+            if (!isAdmin) return;
+            const file = event.target.files[0];
+            if (!file) return;
+            try {
+                showToast('Đang tối ưu hóa ảnh đại diện...', 'info');
+                const compressedBase64 = await compressImageFile(file, 420, 0.84);
+                appState.profile.avatar = compressedBase64;
+                document.getElementById('profileAvatar').src = compressedBase64;
+                saveToStorage(false);
+                showToast('Cập nhật ảnh đại diện thành công!', 'success');
+            } catch (error) {
+                showToast(error.message || 'Không thể tải ảnh lên.', 'error');
+            } finally {
+                event.target.value = '';
+            }
+        }
+
+        /**
+         * 7. THỐNG KÊ BENTO & THANH TỶ TRỌNG DANH MỤC
+         */
+        function renderStatsAndFilters() {
+            const total = appState.achievements.length;
+            const pinned = appState.achievements.filter(item => item.pinned).length;
+
+            document.getElementById('statTotalCount').textContent = total;
+            document.getElementById('statPinnedCount').textContent = pinned;
+
+            const counts = {
+                'Học tập': 0,
+                'Công việc': 0,
+                'Dự án': 0,
+                'Giải thưởng': 0,
+                'Khác': 0
+            };
+            appState.achievements.forEach(item => {
+                if (counts[item.category] !== undefined) {
+                    counts[item.category]++;
+                } else {
+                    counts['Khác']++;
+                }
+            });
+
+            // Tìm danh mục dẫn đầu
+            let topCat = 'Đa lĩnh vực';
+            let maxCount = 0;
+            Object.entries(counts).forEach(([cat, c]) => {
+                if (c > maxCount) {
+                    maxCount = c;
+                    topCat = `${cat} (${c})`;
+                }
+            });
+            document.getElementById('topCategoryBadge').textContent = maxCount > 0 ? `Mạnh nhất: ${topCat}` : 'Chưa có dữ liệu';
+
+            // Render 5 ô danh mục trong Bento Stats
+            const statsGrid = document.getElementById('categoryStatsGrid');
+            statsGrid.innerHTML = Object.keys(counts).map(cat => {
+                const cfg = CATEGORY_CONFIG[cat];
+                const isSelected = activeCategoryFilter === cat;
+                return `
+                    <button onclick="setCategoryFilter('${cat}')"
+                        class="p-2.5 rounded-2xl border text-left transition flex flex-col justify-between ${
+                            isSelected
+                                ? 'bg-cyan-500/20 border-cyan-400 text-white shadow-lg shadow-cyan-500/10'
+                                : 'bg-slate-950/65 border-white/5 hover:border-white/20 text-slate-300'
+                        }">
+                        <div class="flex items-center justify-between w-full mb-1.5">
+                            <span class="w-2 h-2 rounded-full ${cfg.dotClass}"></span>
+                            <i data-lucide="${cfg.icon}" class="w-3.5 h-3.5 opacity-75"></i>
+                        </div>
+                        <div>
+                            <div class="font-mono font-bold text-base sm:text-lg text-white leading-tight">${counts[cat]}</div>
+                            <div class="text-[10px] text-slate-400 truncate mt-0.5">${cat}</div>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+
+            // Render thanh tỷ lệ màu sắc
+            const progressBar = document.getElementById('categoryProgressBar');
+            if (total === 0) {
+                progressBar.innerHTML = `<div class="h-full w-full bg-slate-800 rounded-full"></div>`;
+            } else {
+                progressBar.innerHTML = Object.keys(counts).map(cat => {
+                    const count = counts[cat];
+                    if (count === 0) return '';
+                    const pct = Math.max(8, Math.round((count / total) * 100));
+                    const cfg = CATEGORY_CONFIG[cat];
+                    return `<div style="width:${pct}%; background:${cfg.barColor}" class="h-full first:rounded-l-full last:rounded-r-full transition-all duration-500" title="${cat}: ${count} thành tích"></div>`;
+                }).join('');
+            }
+
+            // Render Filter Pills
+            const filterItems = [
+                { key: 'ALL', label: 'Tất cả', count: total, icon: 'layout-grid' },
+                { key: 'PINNED', label: 'Tuyệt phẩm Ghim', count: pinned, icon: 'crown' },
+                ...Object.keys(counts).map(cat => ({
+                    key: cat,
+                    label: cat,
+                    count: counts[cat],
+                    icon: CATEGORY_CONFIG[cat].icon
+                }))
+            ];
+
+            const pillsContainer = document.getElementById('categoryFilterPills');
+            pillsContainer.innerHTML = filterItems.map(item => {
+                const active = activeCategoryFilter === item.key;
+                return `
+                    <button onclick="setCategoryFilter('${item.key}')"
+                        class="px-3.5 py-2 rounded-xl text-xs font-medium transition flex items-center gap-1.5 border ${
+                            active
+                                ? 'bg-gradient-to-r from-indigo-500 via-cyan-400 to-teal-300 text-slate-950 font-bold border-transparent shadow-md shadow-cyan-500/20'
+                                : 'bg-slate-950/80 text-slate-300 hover:text-white border-white/10 hover:bg-slate-900'
+                        }">
+                        <i data-lucide="${item.icon}" class="w-3.5 h-3.5"></i>
+                        <span>${item.label}</span>
+                        <span class="px-1.5 py-0.2 rounded-full font-mono text-[10px] ${
+                            active ? 'bg-slate-950/25 text-slate-950 font-bold' : 'bg-slate-800 text-slate-400'
+                        }">${item.count}</span>
+                    </button>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function setCategoryFilter(categoryKey) {
+            activeCategoryFilter = categoryKey;
+            renderStatsAndFilters();
+            handleSearchAndFilter();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            handleSearchAndFilter();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('sortSelect').value = 'newest';
+            activeCategoryFilter = 'ALL';
+            renderStatsAndFilters();
+            handleSearchAndFilter();
+        }
+
+        /**
+         * 8. LỌC, SẮP XẾP & HIỂN THỊ THẺ BENTO THÀNH TÍCH
+         */
+        function handleSearchAndFilter() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            const sortBy = document.getElementById('sortSelect').value;
+
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (query.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+
+            let filtered = appState.achievements.filter(item => {
+                const matchesCategory =
+                    activeCategoryFilter === 'ALL' ||
+                    (activeCategoryFilter === 'PINNED' && item.pinned) ||
+                    item.category === activeCategoryFilter;
+
+                const matchesQuery =
+                    !query ||
+                    item.title.toLowerCase().includes(query) ||
+                    item.notes.toLowerCase().includes(query) ||
+                    item.category.toLowerCase().includes(query);
+
+                return matchesCategory && matchesQuery;
+            });
+
+            filtered.sort((a, b) => {
+                if (a.pinned !== b.pinned) {
+                    return a.pinned ? -1 : 1;
+                }
+                const dateA = new Date(a.date || '2000-01-01').getTime();
+                const dateB = new Date(b.date || '2000-01-01').getTime();
+                return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+            });
+
+            currentFilteredList = filtered;
+            document.getElementById('filterResultCounter').textContent =
+                `Hiển thị ${filtered.length} / ${appState.achievements.length} thành tích`;
+
+            renderAchievementsGrid(filtered);
+        }
+
+        function formatVietnameseDate(dateStr) {
+            if (!dateStr) return 'Chưa rõ ngày';
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function renderAchievementsGrid(list) {
+            const grid = document.getElementById('achievementsGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            if (list.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                lucide.createIcons();
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            grid.innerHTML = list.map(item => {
+                const cfg = CATEGORY_CONFIG[item.category] || CATEGORY_CONFIG['Khác'];
+                const formattedDate = formatVietnameseDate(item.date);
+                const coverImg = item.image || createSampleBannerBase64(item.title, item.notes.slice(0, 80), item.category, formattedDate);
+
+                return `
+                    <article onclick="openDetailModal('${item.id}')"
+                        class="bento-card ${item.pinned ? 'bento-pinned' : ''} rounded-[26px] flex flex-col justify-between cursor-pointer group">
+                        
+                        <!-- Ảnh bìa chứng chỉ / thành tích -->
+                        <div class="relative h-52 overflow-hidden bg-slate-950">
+                            <img src="${coverImg}" alt="${escapeHtml(item.title)}"
+                                class="w-full h-full object-cover group-hover:scale-105 transition duration-700 ease-out">
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#080d1d] via-[#080d1d]/25 to-transparent"></div>
+
+                            <!-- Nhãn Danh mục góc trái trên -->
+                            <div class="absolute top-3.5 left-3.5 flex items-center gap-2">
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold border backdrop-blur-md flex items-center gap-1.5 ${cfg.badgeClass}">
+                                    <i data-lucide="${cfg.icon}" class="w-3.5 h-3.5"></i>
+                                    <span>${escapeHtml(item.category)}</span>
+                                </span>
+                            </div>
+
+                            <!-- Huy hiệu Tuyệt phẩm Ghim (hoặc nút Ghim cho Admin) -->
+                            <div class="absolute top-3.5 right-3.5 flex items-center gap-1.5">
+                                ${item.pinned ? `
+                                    <span class="shimmer-badge px-2.5 py-1 rounded-full text-[11px] font-bold text-amber-200 border border-amber-400/50 backdrop-blur-md flex items-center gap-1 shadow-lg">
+                                        <i data-lucide="crown" class="w-3 h-3 text-amber-300"></i>
+                                        <span>Nổi bật</span>
+                                    </span>
+                                ` : ''}
+
+                                ${isAdmin ? `
+                                    <button onclick="togglePinAchievement(event, '${item.id}')"
+                                        title="${item.pinned ? 'Bỏ ghim nổi bật' : 'Ghim thành tích lên đầu'}"
+                                        class="w-8 h-8 rounded-full backdrop-blur-md border flex items-center justify-center transition ${
+                                            item.pinned
+                                                ? 'bg-amber-500/30 border-amber-400 text-amber-200'
+                                                : 'bg-slate-950/70 border-white/15 text-slate-300 hover:text-white'
+                                        }">
+                                        <i data-lucide="star" class="w-3.5 h-3.5 ${item.pinned ? 'fill-amber-400' : ''}"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+
+                            <!-- Ngày đạt được -->
+                            <div class="absolute bottom-3 left-4 right-4 flex items-center justify-between text-xs text-slate-300">
+                                <span class="inline-flex items-center gap-1.5 font-mono text-[11px] bg-slate-950/75 px-2.5 py-1 rounded-lg border border-white/10">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-cyan-400"></i>
+                                    <span>${formattedDate}</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Nội dung thành tích -->
+                        <div class="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4 relative z-10">
+                            <div class="space-y-2.5">
+                                <h3 class="font-display font-bold text-base sm:text-lg text-white group-hover:text-cyan-300 transition line-clamp-2 leading-snug">
+                                    ${escapeHtml(item.title)}
+                                </h3>
+                                <p class="text-xs sm:text-sm text-slate-300/85 line-clamp-3 leading-relaxed">
+                                    ${escapeHtml(item.notes)}
+                                </p>
+                            </div>
+
+                            <!-- Chân thẻ -->
+                            <div class="pt-3.5 border-t border-white/10 flex items-center justify-between gap-2">
+                                <span class="text-xs font-semibold text-cyan-400 group-hover:translate-x-1 transition inline-flex items-center gap-1.5">
+                                    <span>Đọc câu chuyện &amp; chứng chỉ</span>
+                                    <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+                                </span>
+
+                                <div class="flex items-center gap-1" onclick="event.stopPropagation()">
+                                    ${item.link ? `
+                                        <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer"
+                                            title="Mở đường dẫn minh chứng"
+                                            class="p-2 rounded-xl text-slate-300 hover:text-cyan-300 hover:bg-slate-800/80 transition">
+                                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                                        </a>
+                                    ` : ''}
+
+                                    ${isAdmin ? `
+                                        <button onclick="openAchievementModal('${item.id}')" title="Chỉnh sửa thành tích"
+                                            class="p-2 rounded-xl text-slate-400 hover:text-indigo-300 hover:bg-slate-800/80 transition">
+                                            <i data-lucide="pencil" class="w-4 h-4"></i>
+                                        </button>
+                                        <button onclick="confirmDeleteAchievement('${item.id}')" title="Xóa thành tích"
+                                            class="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-800/80 transition">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            setupSpotlightHoverEffect();
+            lucide.createIcons();
+        }
+
+        /**
+         * Hiệu ứng Spotlight phát sáng theo tọa độ chuột trên mọi thẻ Bento
+         */
+        function setupSpotlightHoverEffect() {
+            const cards = document.querySelectorAll('.bento-card');
+            cards.forEach(card => {
+                card.onmousemove = (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    card.style.setProperty('--mouse-x', `${x}px`);
+                    card.style.setProperty('--mouse-y', `${y}px`);
+                };
+            });
+        }
+
+        /**
+         * 9. QUẢN LÝ CRUD THÀNH TÍCH (CHỈ DÀNH CHO ADMIN)
+         */
+        function openAchievementModal(editId = null) {
+            if (!isAdmin) {
+                openPinModal();
+                return;
+            }
+            const modal = document.getElementById('formModal');
+            const titleEl = document.getElementById('formModalTitle');
+            const previewImg = document.getElementById('achImagePreview');
+            const placeholder = document.getElementById('achImagePlaceholder');
+
+            document.getElementById('achievementForm').reset();
+            currentUploadedImageBase64 = '';
+
+            if (editId) {
+                const item = appState.achievements.find(a => a.id === editId);
+                if (!item) return;
+
+                titleEl.textContent = 'Chỉnh sửa thành tích';
+                document.getElementById('achId').value = item.id;
+                document.getElementById('achTitle').value = item.title;
+                document.getElementById('achCategory').value = item.category;
+                document.getElementById('achDate').value = item.date;
+                document.getElementById('achLink').value = item.link || '';
+                document.getElementById('achNotes').value = item.notes;
+                document.getElementById('achPinned').checked = Boolean(item.pinned);
+
+                if (item.image) {
+                    currentUploadedImageBase64 = item.image;
+                    previewImg.src = item.image;
+                    previewImg.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                } else {
+                    previewImg.classList.add('hidden');
+                    placeholder.classList.remove('hidden');
+                }
+            } else {
+                titleEl.textContent = 'Thêm thành tích mới';
+                document.getElementById('achId').value = '';
+                document.getElementById('achDate').value = new Date().toISOString().split('T')[0];
+                previewImg.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeAchievementModal() {
+            const modal = document.getElementById('formModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function handleAchievementImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            try {
+                showToast('Đang nén ảnh qua HTML5 Canvas...', 'info');
+                const compressed = await compressImageFile(file, 900, 0.76);
+                currentUploadedImageBase64 = compressed;
+
+                const previewImg = document.getElementById('achImagePreview');
+                const placeholder = document.getElementById('achImagePlaceholder');
+                previewImg.src = compressed;
+                previewImg.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+                showToast('Tải ảnh minh họa thành công!', 'success');
+            } catch (err) {
+                showToast(err.message || 'Lỗi khi xử lý ảnh.', 'error');
+            } finally {
+                event.target.value = '';
+            }
+        }
+
+        function generateAutoBannerForForm() {
+            const title = document.getElementById('achTitle').value.trim() || 'Thành tích & Dấu ấn Cá nhân';
+            const category = document.getElementById('achCategory').value || 'Dự án';
+            const dateVal = document.getElementById('achDate').value;
+            const notes = document.getElementById('achNotes').value.trim() || appState.profile.name;
+
+            const generated = createSampleBannerBase64(
+                title,
+                notes.slice(0, 90),
+                category,
+                formatVietnameseDate(dateVal)
+            );
+            currentUploadedImageBase64 = generated;
+
+            const previewImg = document.getElementById('achImagePreview');
+            const placeholder = document.getElementById('achImagePlaceholder');
+            previewImg.src = generated;
+            previewImg.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+            showToast('Đã vẽ ảnh bìa đồ họa tự động!', 'success');
+        }
+
+        function saveAchievementForm(event) {
+            event.preventDefault();
+            if (!isAdmin) return;
+
+            const id = document.getElementById('achId').value;
+            const title = document.getElementById('achTitle').value.trim();
+            const category = document.getElementById('achCategory').value;
+            const date = document.getElementById('achDate').value;
+            const link = document.getElementById('achLink').value.trim();
+            const notes = document.getElementById('achNotes').value.trim();
+            const pinned = document.getElementById('achPinned').checked;
+
+            if (!title || !notes) {
+                showToast('Vui lòng nhập đầy đủ tên thành tích và ghi chú!', 'error');
+                return;
+            }
+
+            const finalImage = currentUploadedImageBase64 || createSampleBannerBase64(
+                title,
+                notes.slice(0, 90),
+                category,
+                formatVietnameseDate(date)
+            );
+
+            if (id) {
+                const index = appState.achievements.findIndex(item => item.id === id);
+                if (index !== -1) {
+                    appState.achievements[index] = {
+                        ...appState.achievements[index],
+                        title,
+                        category,
+                        date,
+                        link,
+                        notes,
+                        pinned,
+                        image: finalImage
+                    };
+                }
+                showToast('Đã cập nhật thành tích thành công!', 'success');
+            } else {
+                const newItem = {
+                    id: 'ach-' + Date.now(),
+                    title,
+                    category,
+                    date,
+                    link,
+                    notes,
+                    pinned,
+                    image: finalImage
+                };
+                appState.achievements.unshift(newItem);
+                showToast('Đã thêm thành tích mới vào hồ sơ!', 'success');
+            }
+
+            saveToStorage(false);
+            closeAchievementModal();
+            renderStatsAndFilters();
+            handleSearchAndFilter();
+        }
+
+        function togglePinAchievement(event, id) {
+            if (event) event.stopPropagation();
+            if (!isAdmin) return;
+
+            const item = appState.achievements.find(a => a.id === id);
+            if (!item) return;
+
+            item.pinned = !item.pinned;
+            saveToStorage(false);
+            renderStatsAndFilters();
+            handleSearchAndFilter();
+            showToast(item.pinned ? 'Đã ghim thành tích lên đầu trang!' : 'Đã bỏ ghim thành tích.', 'info');
+        }
+
+        /**
+         * 10. MAGAZINE LIGHTBOX MODAL & CHUYỂN TIẾP TRƯỚC / SAU
+         */
+        function openDetailModal(id) {
+            const list = currentFilteredList.length > 0 ? currentFilteredList : appState.achievements;
+            const currentIndex = list.findIndex(a => a.id === id);
+            const item = currentIndex !== -1 ? list[currentIndex] : appState.achievements.find(a => a.id === id);
+            if (!item) return;
+
+            currentDetailModalId = item.id;
+            const cfg = CATEGORY_CONFIG[item.category] || CATEGORY_CONFIG['Khác'];
+            const modal = document.getElementById('detailModal');
+
+            document.getElementById('detailImage').src = item.image;
+            document.getElementById('detailTitle').textContent = item.title;
+            document.getElementById('detailDate').textContent = formatVietnameseDate(item.date);
+            document.getElementById('detailNotes').textContent = item.notes;
+            document.getElementById('detailIndexIndicator').textContent =
+                currentIndex !== -1 ? `Thành tích ${currentIndex + 1} / ${list.length}` : '';
+
+            const catBadge = document.getElementById('detailCategoryBadge');
+            catBadge.className = `px-3.5 py-1 rounded-full text-xs font-semibold border backdrop-blur-md ${cfg.badgeClass}`;
+            catBadge.textContent = item.category;
+
+            const pinnedBadge = document.getElementById('detailPinnedBadge');
+            if (item.pinned) {
+                pinnedBadge.classList.remove('hidden');
+            } else {
+                pinnedBadge.classList.add('hidden');
+            }
+
+            const linkContainer = document.getElementById('detailLinkContainer');
+            const linkEl = document.getElementById('detailLink');
+            if (item.link) {
+                linkEl.href = item.link;
+                linkContainer.classList.remove('hidden');
+            } else {
+                linkContainer.classList.add('hidden');
+            }
+
+            document.getElementById('detailTogglePinBtn').onclick = () => {
+                togglePinAchievement(null, item.id);
+                openDetailModal(item.id);
+            };
+            document.getElementById('detailEditBtn').onclick = () => {
+                closeDetailModal();
+                openAchievementModal(item.id);
+            };
+            document.getElementById('detailDeleteBtn').onclick = () => {
+                closeDetailModal();
+                confirmDeleteAchievement(item.id);
+            };
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function navigateDetailModal(direction) {
+            const list = currentFilteredList.length > 0 ? currentFilteredList : appState.achievements;
+            if (list.length <= 1 || !currentDetailModalId) return;
+            const currentIndex = list.findIndex(a => a.id === currentDetailModalId);
+            if (currentIndex === -1) return;
+            const nextIndex = (currentIndex + direction + list.length) % list.length;
+            openDetailModal(list[nextIndex].id);
+        }
+
+        function closeDetailModal() {
+            const modal = document.getElementById('detailModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            currentDetailModalId = null;
+        }
+
+        function handleBackdropClick(event, modalId) {
+            if (event.target.id === modalId) {
+                if (modalId === 'detailModal') closeDetailModal();
+                if (modalId === 'pinModal') closePinModal();
+                if (modalId === 'shareGuideModal') closeShareGuideModal();
+            }
+        }
+
+        function openShareGuideModal() {
+            const modal = document.getElementById('shareGuideModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeShareGuideModal() {
+            const modal = document.getElementById('shareGuideModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function confirmDeleteAchievement(id) {
+            if (!isAdmin) return;
+            const item = appState.achievements.find(a => a.id === id);
+            if (!item) return;
+
+            const modal = document.getElementById('confirmModal');
+            document.getElementById('confirmModalTitle').textContent = 'Xác nhận xóa thành tích?';
+            document.getElementById('confirmModalDesc').textContent =
+                `Bạn có chắc chắn muốn xóa "${item.title}" khỏi hồ sơ cá nhân?`;
+
+            const confirmBtn = document.getElementById('confirmActionBtn');
+            confirmBtn.textContent = 'Xóa thành tích';
+            confirmBtn.onclick = () => {
+                appState.achievements = appState.achievements.filter(a => a.id !== id);
+                saveToStorage(false);
+                closeConfirmModal();
+                renderStatsAndFilters();
+                handleSearchAndFilter();
+                showToast('Đã xóa thành tích khỏi hồ sơ.', 'info');
+            };
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function openResetDemoModal() {
+            if (!isAdmin) return;
+            const modal = document.getElementById('confirmModal');
+            document.getElementById('confirmModalTitle').textContent = 'Khôi phục dữ liệu mẫu ban đầu?';
+            document.getElementById('confirmModalDesc').textContent =
+                'Hồ sơ và 3 thành tích mẫu mặc định sẽ được khôi phục.';
+
+            const confirmBtn = document.getElementById('confirmActionBtn');
+            confirmBtn.textContent = 'Khôi phục ngay';
+            confirmBtn.onclick = () => {
+                appState = getInitialSampleData();
+                saveToStorage(false);
+                closeConfirmModal();
+                renderProfileHero();
+                renderStatsAndFilters();
+                handleSearchAndFilter();
+                showToast('Đã khôi phục bộ dữ liệu mẫu!', 'success');
+            };
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirmModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        /**
+         * 11. TÍNH NĂNG ĐẶC BIỆT: ĐÓNG GÓI FILE INDEX.HTML ĐÃ NHÚNG DỮ LIỆU (BAKE-IN HTML GENERATOR)
+         * Giúp người dùng tải về 1 file index.html chứa sẵn toàn bộ thành tích + ảnh và mặc định ở Viewer Mode
+         */
+        function exportBakedHtmlFile() {
+            try {
+                // Nhân bản cây DOM hiện tại để làm sạch trạng thái trước khi đóng gói
+                const cloneDoc = document.documentElement.cloneNode(true);
+                const cloneBody = cloneDoc.querySelector('body');
+                if (cloneBody) {
+                    cloneBody.classList.remove('is-admin');
+                }
+
+                // Đóng tất cả các modal trong bản đóng gói
+                ['formModal', 'detailModal', 'pinModal', 'shareGuideModal', 'confirmModal'].forEach(id => {
+                    const m = cloneDoc.querySelector('#' + id);
+                    if (m) {
+                        m.classList.add('hidden');
+                        m.classList.remove('flex');
+                    }
+                });
+
+                // Xóa thông báo toast tạm thời
+                const toastBox = cloneDoc.querySelector('#toastContainer');
+                if (toastBox) toastBox.innerHTML = '';
+
+                // Tắt contenteditable trong bản xuất để khách vào chỉ xem
+                cloneDoc.querySelectorAll('.editable-field').forEach(el => {
+                    el.setAttribute('contenteditable', 'false');
+                });
+
+                // Nhúng cứng toàn bộ dữ liệu appState vào thẻ script#baked-data-script
+                const bakedScript = cloneDoc.querySelector('#baked-data-script');
+                if (bakedScript) {
+                    const safeJson = JSON.stringify(appState).replace(/<\/script>/gi, '<\\/script>');
+                    bakedScript.textContent = `\n        window.__BAKED_PORTFOLIO_DATA__ = ${safeJson};\n    `;
+                }
+
+                const finalHtml = '<!DOCTYPE html>\n' + cloneDoc.outerHTML;
+                const blob = new Blob([finalHtml], { type: 'text/html;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'index.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                showToast('Đã xuất file index.html chứa sẵn toàn bộ thành tích & khóa ở Chế độ Khách!', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('Không thể đóng gói file HTML.', 'error');
+            }
+        }
+
+        /**
+         * 12. SAO LƯU & PHỤC HỒI FILE JSON
+         */
+        function exportPortfolioData() {
+            try {
+                const exportPayload = {
+                    exportedAt: new Date().toISOString(),
+                    version: '2.0',
+                    ...appState
+                };
+                const jsonString = JSON.stringify(exportPayload, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                const dateTag = new Date().toISOString().slice(0, 10);
+                a.href = url;
+                a.download = `ho-so-thanh-tich-${dateTag}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                showToast('Đã xuất file sao lưu JSON thành công!', 'success');
+            } catch (err) {
+                showToast('Có lỗi khi xuất file JSON.', 'error');
+            }
+        }
+
+        function importPortfolioData(event) {
+            if (!isAdmin) return;
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (!imported || !Array.isArray(imported.achievements)) {
+                        throw new Error('Cấu trúc file JSON không hợp lệ.');
+                    }
+                    mergeIntoAppState(imported);
+                    saveToStorage(false);
+                    renderProfileHero();
+                    renderStatsAndFilters();
+                    handleSearchAndFilter();
+                    showToast(`Đã nhập thành công ${appState.achievements.length} thành tích!`, 'success');
+                } catch (err) {
+                    showToast(err.message || 'Không thể đọc file JSON.', 'error');
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        /**
+         * 13. HỆ THỐNG THÔNG BÁO TOAST
+         */
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+
+            const styleMap = {
+                success: 'border-emerald-400/40 bg-slate-900/95 text-emerald-200',
+                error: 'border-rose-400/40 bg-slate-900/95 text-rose-200',
+                info: 'border-cyan-400/40 bg-slate-900/95 text-cyan-200'
+            };
+            const iconMap = {
+                success: 'check-circle-2',
+                error: 'alert-circle',
+                info: 'sparkles'
+            };
+
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl border backdrop-blur-xl shadow-2xl transition-all duration-300 ${styleMap[type] || styleMap.info}`;
+            toast.innerHTML = `
+                <i data-lucide="${iconMap[type] || 'sparkles'}" class="w-4 h-4 shrink-0"></i>
+                <span class="text-xs sm:text-sm font-medium text-white">${escapeHtml(message)}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(8px)';
+                setTimeout(() => toast.remove(), 280);
+            }, 3400);
+        }
+
+        /**
+         * KHỞI CHẠY ỨNG DỤNG KHI TẢI TRANG
+         */
+        window.addEventListener('DOMContentLoaded', () => {
+            loadFromStorage();
+            renderProfileHero();
+            setupInlineProfileEditing();
+            renderStatsAndFilters();
+            applyPermissionModeUI();
+            setupSpotlightHoverEffect();
+            lucide.createIcons();
+
+            // Phím tắt tiện lợi cho Lightbox & Modal
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeAchievementModal();
+                    closeDetailModal();
+                    closePinModal();
+                    closeShareGuideModal();
+                    closeConfirmModal();
+                } else if (currentDetailModalId) {
+                    if (e.key === 'ArrowLeft') navigateDetailModal(-1);
+                    if (e.key === 'ArrowRight') navigateDetailModal(1);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+```
+
+### Những nâng cấp quan trọng đã được cập nhật:
+
+1. **Giải quyết triệt để vấn đề Chia sẻ Link & Bảo vệ Quyền chỉnh sửa**:
+   - **Mặc định là Chế độ Khách (`Viewer Mode - Chỉ xem`)**: Khi bất kỳ ai mở link của bạn, toàn bộ các nút *Thêm, Sửa, Xóa, Ghim, Tải ảnh Avatar* và chỉnh sửa trực tiếp văn bản đều bị khóa và ẩn đi. Khách truy cập sẽ trải nghiệm một trang Portfolio chuyên nghiệp, sang trọng.
+   - **Chế độ Quản trị bảo vệ bằng Mã PIN (`Mở khóa Quản trị`)**: Nhấn vào nút **"Mở khóa Quản trị"** ở góc phải trên và nhập mã PIN (mặc định là **`2026`**, bạn có thể đổi mã PIN riêng) để bật thanh công cụ **Admin Mode** và toàn quyền thêm/sửa/xóa thành tích.
+   - **Đồng bộ Đám mây (Cloud Sync) + Nút `"Xuất file index.html (Đã nhúng dữ liệu)"`**: Ngoài việc đồng bộ trực tiếp, trong thanh công cụ Admin có nút vàng **"Xuất file index.html (Đã nhúng dữ liệu)"**. Khi bấm vào, hệ thống sẽ tự động nhúng cứng toàn bộ thành tích, hình ảnh và thông tin của bạn ngay vào mã nguồn của file `index.html` mới và đặt sẵn ở chế độ Khách để bạn gửi file hoặc đưa lên GitHub Pages / Vercel mà không bao giờ bị mất dữ liệu.
+
+2. **Nâng cấp Giao diện Ultra Bento Grid & Glassmorphism**:
+   - **Hiệu ứng Aurora Mesh & Spotlight theo chuột**: Nền tối `#040711` kết hợp dải sáng chuyển động và hiệu ứng ánh sáng chạy theo con trỏ chuột trên từng thẻ Bento.
+   - **Khu vực Hero Bento mới**: Bổ sung ảnh bìa nghệ thuật, vòng sáng Conic Gradient quanh Avatar, chấm xanh trạng thái kết nối, huy hiệu *Verified Achievement Portfolio* và 3 thẻ thông tin nhanh (*Đơn vị/Địa điểm, Chuyên môn, Liên hệ*) có thể chỉnh sửa trực tiếp khi mở khóa Admin.
+   - **Magazine Lightbox Modal**: Cửa sổ đọc chi tiết có thêm nút **Chuyển qua lại (Trước / Tiếp theo)** hoặc dùng phím mũi tên `←` `→` trên bàn phím để duyệt nhanh qua các chứng chỉ và câu chuyện thành tích.
