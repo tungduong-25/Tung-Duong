@@ -16,6 +16,9 @@
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- Supabase JS SDK v2 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <!-- Cấu hình Tailwind tùy chỉnh -->
     <script>
         tailwind.config = {
@@ -99,7 +102,7 @@
         }
 
         .bento-card:hover {
-            transform: translateY(-6px);
+            transform: translateY(-4px);
             border-color: rgba(34, 211, 238, 0.35);
             box-shadow: 0 25px 50px -12px rgba(6, 182, 212, 0.18), 0 0 30px -8px rgba(99, 102, 241, 0.25);
         }
@@ -134,15 +137,15 @@
         body.is-admin .editable-field {
             cursor: text;
             border-radius: 0.5rem;
-            padding: 2px 8px;
-            margin: -2px -8px;
-            border: 1px dashed rgba(34, 211, 238, 0.35);
-            background: rgba(15, 23, 42, 0.45);
+            padding: 2px 6px;
+            margin: -2px -6px;
+            border: 1px dashed rgba(34, 211, 238, 0.4);
+            background: rgba(15, 23, 42, 0.55);
             transition: all 0.2s ease;
         }
         body.is-admin .editable-field:hover {
-            background: rgba(34, 211, 238, 0.1);
-            border-color: rgba(34, 211, 238, 0.75);
+            background: rgba(34, 211, 238, 0.12);
+            border-color: rgba(34, 211, 238, 0.85);
         }
         body.is-admin .editable-field:focus {
             outline: none;
@@ -190,9 +193,10 @@
         }
     </style>
 
-    <!-- DỮ LIỆU ĐƯỢC NHÚNG CỨNG KHI XUẤT FILE HTML ĐỘC LẬP -->
+    <!-- DỮ LIỆU & CẤU HÌNH SUPABASE ĐƯỢC NHÚNG CỨNG KHI XUẤT FILE HTML ĐỘC LẬP -->
     <script id="baked-data-script">
         window.__BAKED_PORTFOLIO_DATA__ = null;
+        window.__BAKED_SUPABASE_CONFIG__ = null;
     </script>
 </head>
 <body class="min-h-screen relative selection:bg-cyan-400 selection:text-slate-950">
@@ -211,13 +215,13 @@
             
             <!-- Thương hiệu & Trạng thái Chế độ -->
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 via-cyan-400 to-emerald-300 p-[1px] shadow-lg shadow-cyan-500/20">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 via-cyan-400 to-emerald-300 p-[1px] shadow-lg shadow-cyan-500/20 shrink-0">
                     <div class="w-full h-full bg-slate-950 rounded-[15px] flex items-center justify-center">
                         <i data-lucide="sparkles" class="w-5 h-5 text-cyan-300"></i>
                     </div>
                 </div>
                 <div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
                         <span class="font-display font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-cyan-300 bg-clip-text text-transparent">
                             Portfolio &amp; Achievements
                         </span>
@@ -241,7 +245,7 @@
                 <button onclick="openShareGuideModal()" title="Cách chia sẻ hồ sơ cho người khác xem"
                     class="p-2 sm:px-3.5 sm:py-2 rounded-xl text-xs font-medium text-slate-200 hover:text-white bg-slate-900/90 hover:bg-slate-800 border border-white/10 transition flex items-center gap-1.5">
                     <i data-lucide="share-2" class="w-4 h-4 text-cyan-400"></i>
-                    <span class="hidden sm:inline">Chia sẻ Hồ sơ</span>
+                    <span class="hidden sm:inline">Chia sẻ &amp; Cloud</span>
                 </button>
 
                 <!-- Nút Thêm thành tích nhanh (Chỉ hiện khi ở Admin Mode) -->
@@ -272,16 +276,24 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-2 text-xs text-cyan-200">
                     <span class="px-2 py-0.5 rounded-md bg-cyan-500/20 border border-cyan-400/40 font-mono font-bold text-cyan-300 text-[11px]">ADMIN MODE</span>
-                    <span>Bạn đang ở chế độ Chỉnh sửa. Nhấn trực tiếp vào chữ trên hồ sơ để sửa hoặc quản lý các thẻ bên dưới.</span>
+                    <span>Nhấn trực tiếp vào chữ trên hồ sơ để sửa. Mọi thay đổi sẽ tự động lưu Local &amp; đẩy lên Supabase Cloud.</span>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2">
+                    <!-- Nút Cấu hình & Đồng bộ Supabase Cloud -->
+                    <button onclick="openSupabaseModal()"
+                        class="px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-950 bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300 hover:brightness-110 transition shadow-md shadow-emerald-500/20 flex items-center gap-1.5"
+                        title="Kết nối cơ sở dữ liệu Supabase để khi đăng web ai bấm vào link cũng thấy dữ liệu mới nhất">
+                        <i data-lucide="database" class="w-3.5 h-3.5 stroke-[2.3]"></i>
+                        <span id="supabaseBtnLabel">Kết nối Supabase Cloud</span>
+                    </button>
+
                     <!-- Nút Đóng gói file index.html để chia sẻ / đưa lên web -->
                     <button onclick="exportBakedHtmlFile()"
                         class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-950 bg-gradient-to-r from-amber-300 via-yellow-300 to-orange-300 hover:brightness-110 transition shadow-md shadow-amber-500/20 flex items-center gap-1.5"
-                        title="Tải xuống file index.html đã nhúng sẵn toàn bộ thành tích của bạn và khóa sẵn ở chế độ Khách">
+                        title="Tải xuống file index.html đã nhúng sẵn toàn bộ thành tích + cấu hình Supabase và khóa sẵn ở chế độ Khách">
                         <i data-lucide="package-check" class="w-4 h-4 stroke-[2.2]"></i>
-                        <span>Xuất file index.html (Đã nhúng dữ liệu)</span>
+                        <span>Xuất file index.html</span>
                     </button>
 
                     <!-- Xuất JSON -->
@@ -351,7 +363,7 @@
                 </div>
 
                 <!-- Thân Hồ sơ -->
-                <div class="px-6 sm:px-8 pb-6 sm:pb-8 pt-0 flex-1 flex flex-col justify-between relative z-10">
+                <div class="px-5 sm:px-8 pb-6 sm:pb-8 pt-0 flex-1 flex flex-col justify-between relative z-10">
                     <!-- Hàng Avatar & Nút hành động -->
                     <div class="flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 -mt-14 sm:-mt-16 mb-5">
                         <div class="relative group shrink-0">
@@ -397,7 +409,7 @@
                         </div>
 
                         <p id="profileRole" spellcheck="false" data-field="role"
-                            class="editable-field text-sm sm:text-base md:text-lg font-semibold text-cyan-300/95">
+                            class="editable-field text-sm sm:text-base md:text-lg font-semibold text-cyan-300/95 leading-snug">
                             Giảng viên CNTT &amp; Nhà phát triển Web / AI — Trường Cao đẳng Cơ điện Hà Nội
                         </p>
 
@@ -413,63 +425,78 @@
                         </div>
                     </div>
 
-                    <!-- 3 Thẻ Thông tin Nhanh (Địa điểm, Liên hệ, Lĩnh vực - Sửa trực tiếp khi ở Admin Mode) -->
-                    <div class="mt-6 pt-5 border-t border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div class="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-slate-900/60 border border-white/5">
-                            <div class="w-8 h-8 rounded-xl bg-indigo-500/15 border border-indigo-400/30 flex items-center justify-center text-indigo-300 shrink-0">
+                    <!-- 3 Thẻ Thông tin Nhanh Đã Tối Ưu Bento Grid 12 Cột (Tỷ lệ 3 : 4 : 5) - Không bao giờ cắt chữ (...) -->
+                    <div class="mt-6 pt-5 border-t border-white/10 grid grid-cols-1 md:grid-cols-12 gap-3.5 items-stretch">
+                        
+                        <!-- Thẻ 1: Đơn vị / Địa điểm (Chiếm 3/12 cột) -->
+                        <div class="md:col-span-3 flex items-start gap-3 p-3.5 rounded-2xl bg-slate-900/65 border border-white/10 hover:border-indigo-400/30 transition">
+                            <div class="w-9 h-9 rounded-xl bg-indigo-500/15 border border-indigo-400/30 flex items-center justify-center text-indigo-300 shrink-0 mt-0.5">
                                 <i data-lucide="map-pin" class="w-4 h-4"></i>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block">Đơn vị / Địa điểm</span>
+                                <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block mb-0.5">Đơn vị / Địa điểm</span>
                                 <span id="profileLocation" spellcheck="false" data-field="location"
-                                    class="editable-field text-xs font-medium text-slate-200 truncate block">
+                                    class="editable-field text-xs sm:text-[13px] font-medium text-slate-100 break-words leading-snug block">
                                     Hà Nội, Việt Nam (HCEM)
                                 </span>
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-slate-900/60 border border-white/5">
-                            <div class="w-8 h-8 rounded-xl bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-cyan-300 shrink-0">
+                        <!-- Thẻ 2: Chuyên môn trọng tâm (Chiếm 4/12 cột) -->
+                        <div class="md:col-span-4 flex items-start gap-3 p-3.5 rounded-2xl bg-slate-900/65 border border-white/10 hover:border-cyan-400/30 transition">
+                            <div class="w-9 h-9 rounded-xl bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-cyan-300 shrink-0 mt-0.5">
                                 <i data-lucide="cpu" class="w-4 h-4"></i>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block">Chuyên môn trọng tâm</span>
+                                <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block mb-0.5">Chuyên môn trọng tâm</span>
                                 <span id="profileSpecialty" spellcheck="false" data-field="specialty"
-                                    class="editable-field text-xs font-medium text-slate-200 truncate block">
+                                    class="editable-field text-xs sm:text-[13px] font-medium text-slate-100 break-words leading-snug block">
                                     Web Fullstack, AI &amp; EdTech
                                 </span>
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-slate-900/60 border border-white/5">
-                            <div class="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center text-emerald-300 shrink-0">
-                                <i data-lucide="mail" class="w-4 h-4"></i>
+                        <!-- Thẻ 3 (Mở rộng): Liên hệ / Kết nối (Chiếm 5/12 cột) - Hiển thị trọn vẹn Email & Số điện thoại dài -->
+                        <div class="md:col-span-5 flex items-start justify-between gap-3 p-3.5 rounded-2xl bg-gradient-to-br from-slate-900/80 via-slate-900/65 to-emerald-950/30 border border-emerald-400/20 hover:border-emerald-400/45 transition">
+                            <div class="flex items-start gap-3 min-w-0 flex-1">
+                                <div class="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center text-emerald-300 shrink-0 mt-0.5">
+                                    <i data-lucide="mail" class="w-4 h-4"></i>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-2 mb-0.5">
+                                        <span class="text-[10px] font-semibold uppercase tracking-wider text-emerald-300/90">Liên hệ / Kết nối trực tiếp</span>
+                                    </div>
+                                    <span id="profileContact" spellcheck="false" data-field="contact"
+                                        class="editable-field text-xs sm:text-[13px] font-semibold text-white break-words leading-snug block">
+                                        hoangduc.cntt@hcem.edu.vn
+                                    </span>
+                                </div>
                             </div>
-                            <div class="min-w-0 flex-1">
-                                <span class="text-[10px] uppercase tracking-wider text-slate-400 block">Liên hệ / Kết nối</span>
-                                <span id="profileContact" spellcheck="false" data-field="contact"
-                                    class="editable-field text-xs font-medium text-slate-200 truncate block">
-                                    hoangduc.cntt@hcem.edu.vn
-                                </span>
-                            </div>
+
+                            <!-- Nút Sao chép nhanh thông tin liên hệ -->
+                            <button type="button" onclick="copyContactInfo()" title="Sao chép thông tin liên hệ"
+                                class="shrink-0 p-2 rounded-xl bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-white/10 hover:border-emerald-400/30 transition">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            </button>
                         </div>
+
                     </div>
                 </div>
             </div>
 
-            <!-- KHỐI BENTO THỐNG KÊ ĐA CHIỀU (4 CỘT) -->
-            <div class="lg:col-span-4 grid grid-cols-2 gap-4 content-between">
+            <!-- KHỐI BENTO THỐNG KÊ ĐA CHIỀU (4 CỘT) - CÂN ĐỐI CHIỀU CAO VỚI KHỐI HERO -->
+            <div class="lg:col-span-4 grid grid-cols-2 gap-4 content-stretch">
                 
                 <!-- Ô 1: Tổng số thành tích -->
                 <div onclick="setCategoryFilter('ALL')"
-                    class="bento-card rounded-[26px] p-5 flex flex-col justify-between cursor-pointer group">
+                    class="bento-card rounded-[26px] p-5 flex flex-col justify-between cursor-pointer group min-h-[148px]">
                     <div class="flex items-center justify-between">
                         <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Tổng thành tích</span>
                         <div class="w-9 h-9 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300 group-hover:scale-110 transition">
                             <i data-lucide="layers" class="w-4 h-4"></i>
                         </div>
                     </div>
-                    <div class="my-3">
+                    <div class="my-2">
                         <div id="statTotalCount" class="font-mono text-3xl sm:text-4xl font-bold text-white tracking-tight">0</div>
                         <p class="text-[11px] text-cyan-300/80 mt-1 flex items-center gap-1">
                             <span>Xem toàn bộ hồ sơ</span>
@@ -480,44 +507,44 @@
 
                 <!-- Ô 2: Tuyệt phẩm Ghim (Pinned) -->
                 <div onclick="setCategoryFilter('PINNED')"
-                    class="bento-card rounded-[26px] p-5 flex flex-col justify-between cursor-pointer group">
+                    class="bento-card rounded-[26px] p-5 flex flex-col justify-between cursor-pointer group min-h-[148px]">
                     <div class="flex items-center justify-between">
                         <span class="text-[11px] font-semibold text-amber-300/90 uppercase tracking-wider">Tuyệt phẩm ghim</span>
                         <div class="w-9 h-9 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 group-hover:scale-110 transition">
                             <i data-lucide="crown" class="w-4 h-4"></i>
                         </div>
                     </div>
-                    <div class="my-3">
+                    <div class="my-2">
                         <div id="statPinnedCount" class="font-mono text-3xl sm:text-4xl font-bold text-amber-300 tracking-tight">0</div>
                         <p class="text-[11px] text-slate-400 mt-1">Dấu ấn tiêu biểu nhất</p>
                     </div>
                 </div>
 
                 <!-- Ô 3: Phân bổ & Tỷ trọng theo 5 Danh mục (Chiếm 2 cột ngang) -->
-                <div class="col-span-2 bento-card rounded-[26px] p-5 flex flex-col justify-between space-y-3.5">
-                    <div class="flex items-center justify-between">
+                <div class="col-span-2 bento-card rounded-[26px] p-5 flex flex-col justify-between space-y-4">
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
                         <div class="flex items-center gap-2">
                             <i data-lucide="bar-chart-3" class="w-4 h-4 text-cyan-400"></i>
                             <span class="text-xs font-bold uppercase tracking-wider text-slate-200">Cấu trúc năng lực &amp; Danh mục</span>
                         </div>
-                        <span id="topCategoryBadge" class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                        <span id="topCategoryBadge" class="text-[11px] font-mono px-2.5 py-0.5 rounded-md bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
                             Đa lĩnh vực
                         </span>
                     </div>
 
-                    <!-- Lưới 5 danh mục kèm thanh tiến độ nhỏ -->
-                    <div id="categoryStatsGrid" class="grid grid-cols-5 gap-2">
+                    <!-- Lưới 5 danh mục responsive (2 cột trên mobile nhỏ, 5 cột trên tablet/desktop) -->
+                    <div id="categoryStatsGrid" class="grid grid-cols-2 sm:grid-cols-5 gap-2">
                         <!-- Render động qua JS -->
                     </div>
 
                     <!-- Thanh tỷ lệ trực quan tổng hợp -->
                     <div class="space-y-1.5 pt-1">
-                        <div id="categoryProgressBar" class="w-full h-2 rounded-full bg-slate-900 overflow-hidden flex gap-0.5 p-0.5 border border-white/5">
+                        <div id="categoryProgressBar" class="w-full h-2.5 rounded-full bg-slate-900 overflow-hidden flex gap-0.5 p-0.5 border border-white/5">
                             <!-- Render các phân đoạn màu qua JS -->
                         </div>
                         <div class="flex items-center justify-between text-[11px] text-slate-400">
                             <span>Nhấn vào từng danh mục để lọc</span>
-                            <span id="lastUpdatedText" class="text-slate-400">Đã đồng bộ</span>
+                            <span id="lastUpdatedText" class="text-slate-400 font-mono">Đã đồng bộ</span>
                         </div>
                     </div>
                 </div>
@@ -602,12 +629,12 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-2.5">
                 <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
-                <p class="font-medium text-slate-300">© 2026 Hồ sơ &amp; Quản lý Thành tích Cá nhân — Ultra Bento &amp; Glassmorphism Edition.</p>
+                <p class="font-medium text-slate-300">© 2026 Hồ sơ &amp; Quản lý Thành tích Cá nhân — Ultra Bento &amp; Supabase Cloud Edition.</p>
             </div>
             <div class="flex items-center gap-4">
                 <button onclick="openShareGuideModal()" class="text-cyan-400 hover:underline flex items-center gap-1">
                     <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
-                    <span>Làm sao để gửi link cho người khác chỉ xem?</span>
+                    <span>Làm sao để người khác vào link thấy dữ liệu tôi đăng lên?</span>
                 </button>
             </div>
         </div>
@@ -627,7 +654,7 @@
                     </div>
                     <div>
                         <h2 id="formModalTitle" class="font-display text-lg sm:text-xl font-bold text-white">Thêm thành tích mới</h2>
-                        <p class="text-xs text-slate-400">Tự động nén ảnh qua Canvas &amp; đồng bộ vào hồ sơ của bạn</p>
+                        <p class="text-xs text-slate-400">Tự động nén ảnh qua Canvas &amp; đồng bộ trực tiếp lên Supabase Cloud</p>
                     </div>
                 </div>
                 <button onclick="closeAchievementModal()" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
@@ -690,7 +717,7 @@
                             class="sm:col-span-3 border-2 border-dashed border-white/15 hover:border-cyan-400/60 rounded-2xl p-4 text-center cursor-pointer bg-slate-950/60 hover:bg-slate-900 transition flex flex-col items-center justify-center min-h-[128px]">
                             <i data-lucide="image-plus" class="w-7 h-7 text-cyan-400 mb-2"></i>
                             <p class="text-xs font-medium text-slate-200">Nhấn để chọn ảnh chứng chỉ / sản phẩm từ máy</p>
-                            <p class="text-[11px] text-slate-400 mt-1">Tự động nén qua HTML5 Canvas giúp lưu trữ cực nhẹ</p>
+                            <p class="text-[11px] text-slate-400 mt-1">Tự động nén qua HTML5 Canvas giúp lưu trữ Cloud cực nhẹ</p>
                             <input type="file" id="achImageInput" accept="image/*" class="hidden" onchange="handleAchievementImageUpload(event)">
                         </div>
 
@@ -746,7 +773,7 @@
                     <button type="submit"
                         class="px-6 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-950 bg-gradient-to-r from-indigo-400 via-cyan-300 to-emerald-300 hover:brightness-110 transition shadow-lg shadow-cyan-500/20 flex items-center gap-2">
                         <i data-lucide="check-circle-2" class="w-4 h-4 stroke-[2.5]"></i>
-                        <span>Lưu thành tích</span>
+                        <span>Lưu &amp; Đồng bộ</span>
                     </button>
                 </div>
             </form>
@@ -850,7 +877,7 @@
     </div>
 
     <!-- ========================================================================== -->
-    <!-- MODAL 3: MỞ KHÓA QUẢN TRỊ BẰNG MÃ PIN & ĐỔI MÃ PIN                         -->
+    <!-- MODAL 3: MỞ KHÓA QUẢN TRỊ BẰNG MÃ PIN (01020304) & ĐỔI MÃ PIN              -->
     <!-- ========================================================================== -->
     <div id="pinModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/85 backdrop-blur-xl" onclick="handleBackdropClick(event, 'pinModal')">
         <div class="ultra-glass w-full max-w-md rounded-[28px] p-6 sm:p-7 border border-white/15 shadow-2xl space-y-5">
@@ -875,13 +902,13 @@
                     <label id="pinInputLabel" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
                         Nhập mã PIN bảo mật để mở khóa quyền Quản trị
                     </label>
-                    <input type="password" id="pinCodeInput" required maxlength="12"
-                        placeholder="••••"
-                        class="w-full px-4 py-3.5 rounded-2xl bg-slate-950 border border-white/15 text-center font-mono text-xl tracking-[0.4em] text-cyan-300 focus:outline-none focus:border-cyan-400">
+                    <input type="password" id="pinCodeInput" required maxlength="16"
+                        placeholder="••••••••"
+                        class="w-full px-4 py-3.5 rounded-2xl bg-slate-950 border border-white/15 text-center font-mono text-xl tracking-[0.35em] text-cyan-300 focus:outline-none focus:border-cyan-400">
                 </div>
 
                 <p class="text-[11px] text-slate-400 leading-relaxed bg-slate-900/70 p-3 rounded-xl border border-white/5">
-                    🔒 <strong class="text-slate-200">Khu vực dành riêng cho chủ sở hữu:</strong> Vui lòng nhập mã PIN bảo mật cá nhân để bật công cụ quản lý và chỉnh sửa hồ sơ.
+                    🔒 <strong class="text-slate-200">Khu vực dành riêng cho chủ sở hữu:</strong> Vui lòng nhập mã PIN bảo mật cá nhân để bật công cụ quản lý, chỉnh sửa hồ sơ và đẩy dữ liệu lên Supabase.
                 </p>
 
                 <div class="flex items-center gap-3 pt-1">
@@ -899,7 +926,104 @@
     </div>
 
     <!-- ========================================================================== -->
-    <!-- MODAL 4: HƯỚNG DẪN CHIA SẺ LINK & ĐÓNG GÓI HỒ SƠ                           -->
+    <!-- MODAL 4: CẤU HÌNH SUPABASE CLOUD (ĐỂ AI BẤM VÀO LINK CŨNG THẤY DỮ LIỆU)     -->
+    <!-- ========================================================================== -->
+    <div id="supabaseModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/85 backdrop-blur-xl overflow-y-auto" onclick="handleBackdropClick(event, 'supabaseModal')">
+        <div class="ultra-glass w-full max-w-2xl rounded-[28px] p-6 sm:p-8 border border-emerald-400/25 shadow-2xl space-y-5 my-auto">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 flex items-center justify-center">
+                        <i data-lucide="database" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-display text-lg sm:text-xl font-bold text-white">Cấu hình Lưu trữ Đám mây Supabase</h3>
+                        <p class="text-xs text-slate-400">Giúp người khác bấm vào link web luôn nhìn thấy những gì bạn đã đăng lên</p>
+                    </div>
+                </div>
+                <button onclick="closeSupabaseModal()" class="p-1.5 rounded-xl text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Bước 1: Copy lệnh SQL khởi tạo bảng trên Supabase -->
+            <div class="p-4 rounded-2xl bg-slate-900/85 border border-white/10 space-y-2.5">
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <span class="text-xs font-bold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <i data-lucide="terminal" class="w-4 h-4"></i>
+                        <span>Bước 1: Tạo bảng trong Supabase SQL Editor (Chỉ làm 1 lần)</span>
+                    </span>
+                    <button type="button" onclick="copySupabaseSqlScript()"
+                        class="px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 transition flex items-center gap-1.5">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                        <span>Copy lệnh SQL khởi tạo bảng</span>
+                    </button>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Vào dự án Supabase của bạn &rarr; mở mục <strong class="text-white">SQL Editor</strong> &rarr; nhấn nút <strong class="text-emerald-300">Copy lệnh SQL khởi tạo bảng</strong> ở trên rồi dán vào và bấm <strong class="text-white">Run</strong>.
+                </p>
+            </div>
+
+            <!-- Bước 2: Nhập URL & Anon Key -->
+            <form onsubmit="saveAndSyncSupabaseConfig(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                        Supabase Project URL (Project Settings &rarr; API)
+                    </label>
+                    <input type="url" id="sbUrlInput" required
+                        placeholder="https://xyzcompany.supabase.co"
+                        class="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-white/15 text-xs sm:text-sm font-mono text-cyan-300 placeholder-slate-600 focus:outline-none focus:border-emerald-400">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                        Supabase Anon Public Key (Project Settings &rarr; API)
+                    </label>
+                    <input type="text" id="sbKeyInput" required
+                        placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                        class="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-white/15 text-xs sm:text-sm font-mono text-emerald-300 placeholder-slate-600 focus:outline-none focus:border-emerald-400">
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-cyan-500/10 border border-cyan-400/25 text-xs text-slate-300 leading-relaxed space-y-1">
+                    <div class="font-semibold text-cyan-300 flex items-center gap-1.5">
+                        <i data-lucide="lightbulb" class="w-4 h-4"></i>
+                        <span>Mẹo cực hay khi đưa web lên mạng (GitHub Pages / Vercel / Netlify):</span>
+                    </div>
+                    <p class="text-slate-400">
+                        Sau khi nhấn <strong class="text-white">"Lưu &amp; Đẩy dữ liệu lên Supabase"</strong>, bạn bấm thêm nút <strong class="text-amber-300">"Xuất file index.html"</strong> trên thanh Admin rồi up file đó lên host. Cấu hình Supabase sẽ được nhúng sẵn vào file, từ đó về sau bạn chỉ cần mở web nhập PIN `01020304` và thêm/sửa thành tích là mọi người vào link thấy ngay lập tức!
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-2.5 pt-2">
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="pullFromSupabaseManual()"
+                            class="px-3.5 py-2.5 rounded-xl text-xs font-semibold text-cyan-200 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-400/30 transition flex items-center gap-1.5">
+                            <i data-lucide="cloud-download" class="w-4 h-4"></i>
+                            <span>Tải dữ liệu từ Supabase về</span>
+                        </button>
+                        <button type="button" onclick="disconnectSupabaseConfig()"
+                            class="px-3 py-2.5 rounded-xl text-xs font-medium text-rose-300 hover:bg-rose-500/15 border border-white/10 transition">
+                            Xóa kết nối
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2.5">
+                        <button type="button" onclick="closeSupabaseModal()"
+                            class="px-4 py-2.5 rounded-xl text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 transition">
+                            Đóng
+                        </button>
+                        <button type="submit"
+                            class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-950 bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300 hover:brightness-110 transition shadow-lg shadow-emerald-500/20 flex items-center gap-1.5">
+                            <i data-lucide="cloud-upload" class="w-4 h-4 stroke-[2.5]"></i>
+                            <span>Lưu &amp; Đẩy dữ liệu lên Supabase</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================================== -->
+    <!-- MODAL 5: HƯỚNG DẪN CHIA SẺ LINK & ĐỒNG BỘ SUPABASE                          -->
     <!-- ========================================================================== -->
     <div id="shareGuideModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/85 backdrop-blur-xl overflow-y-auto" onclick="handleBackdropClick(event, 'shareGuideModal')">
         <div class="ultra-glass w-full max-w-xl rounded-[28px] p-6 sm:p-8 border border-white/15 shadow-2xl space-y-5 my-auto">
@@ -909,8 +1033,8 @@
                         <i data-lucide="share-2" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <h3 class="font-display text-lg sm:text-xl font-bold text-white">Chia sẻ Hồ sơ &amp; Bảo vệ Dữ liệu</h3>
-                        <p class="text-xs text-slate-400">Giải pháp triệt để giúp người xem thấy đủ thành tích và không thể sửa xóa</p>
+                        <h3 class="font-display text-lg sm:text-xl font-bold text-white">Chia sẻ Hồ sơ &amp; Đồng bộ Supabase</h3>
+                        <p class="text-xs text-slate-400">2 cách để người khác bấm vào link thấy ngay thành tích bạn đăng lên</p>
                     </div>
                 </div>
                 <button onclick="closeShareGuideModal()" class="p-1.5 rounded-xl text-slate-400 hover:text-white">
@@ -919,29 +1043,29 @@
             </div>
 
             <div class="space-y-3.5 text-xs sm:text-sm text-slate-300 leading-relaxed">
-                <div class="p-4 rounded-2xl bg-slate-900/80 border border-white/10 space-y-1.5">
-                    <div class="font-semibold text-cyan-300 flex items-center gap-2">
-                        <i data-lucide="shield-check" class="w-4 h-4"></i>
-                        <span>1. Chế độ Khách (Viewer Mode) mặc định</span>
+                <div class="p-4 rounded-2xl bg-slate-900/80 border border-emerald-400/30 space-y-2">
+                    <div class="font-semibold text-emerald-300 flex items-center gap-2">
+                        <i data-lucide="database" class="w-4 h-4"></i>
+                        <span>Cách 1: Đồng bộ tự động qua Supabase Cloud (Khuyên dùng)</span>
                     </div>
                     <p class="text-slate-400 text-xs">
-                        Mọi người khi mở trang đều ở <strong class="text-white">Chế độ Khách (Chỉ xem)</strong>. Toàn bộ tính năng Thêm/Sửa/Xóa đã được bảo vệ an toàn bằng mã PIN Quản trị riêng của bạn.
+                        Mở khóa Quản trị (Mã PIN: <code class="text-cyan-300 font-mono">01020304</code>) &rarr; Bấm nút <strong class="text-emerald-300">"Kết nối Supabase Cloud"</strong> để nhập URL và Anon Key. Mỗi khi bạn thêm/sửa thành tích trên web, dữ liệu sẽ được lưu trực tiếp lên Supabase để bất kỳ ai truy cập link cũng nhìn thấy ngay tức thì!
                     </p>
                 </div>
 
                 <div class="p-4 rounded-2xl bg-slate-900/80 border border-amber-400/25 space-y-2">
                     <div class="font-semibold text-amber-300 flex items-center gap-2">
                         <i data-lucide="package-check" class="w-4 h-4"></i>
-                        <span>2. Xuất file index.html đã nhúng cứng thành tích (Khuyên dùng khi gửi file / đưa lên Hosting)</span>
+                        <span>Cách 2: Xuất file index.html đã nhúng cứng dữ liệu &amp; cấu hình Cloud</span>
                     </div>
                     <p class="text-slate-400 text-xs">
-                        Sau khi thêm thành tích hoặc đổi mã PIN ở chế độ Admin, hãy bấm nút <strong class="text-amber-200">"Xuất file index.html (Đã nhúng dữ liệu)"</strong>. Hệ thống sẽ tải về một file <code class="text-cyan-300">index.html</code> mới chứa sẵn toàn bộ ảnh, ghi chú, mã PIN mới và thành tích của bạn ngay bên trong code để bạn đưa lên GitHub Pages / Vercel.
+                        Bấm nút bên dưới để tải về file <code class="text-cyan-300">index.html</code> đã nhúng sẵn toàn bộ thành tích hiện tại + cấu hình Supabase của bạn và tự động khóa ở <strong class="text-white">Chế độ Khách (Chỉ xem)</strong> để đẩy lên GitHub Pages, Vercel hoặc Netlify.
                     </p>
                     <div class="pt-1">
                         <button onclick="exportBakedHtmlFile()"
                             class="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-300 via-yellow-300 to-cyan-300 hover:brightness-110 transition flex items-center justify-center gap-2">
                             <i data-lucide="download" class="w-4 h-4"></i>
-                            <span>Tải xuống file index.html (Đã nhúng toàn bộ thành tích hiện tại)</span>
+                            <span>Tải xuống file index.html (Đã nhúng dữ liệu &amp; cấu hình Supabase)</span>
                         </button>
                     </div>
                 </div>
@@ -957,7 +1081,7 @@
     </div>
 
     <!-- ========================================================================== -->
-    <!-- MODAL 5: HỘP THOẠI XÁC NHẬN AN TOÀN                                        -->
+    <!-- MODAL 6: HỘP THOẠI XÁC NHẬN AN TOÀN                                         -->
     <!-- ========================================================================== -->
     <div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
         <div class="ultra-glass w-full max-w-md rounded-[28px] p-6 border border-white/15 shadow-2xl text-center space-y-4">
@@ -983,92 +1107,25 @@
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
 
     <!-- ========================================================================== -->
-    <!-- MÃ NGUỒN JAVASCRIPT & TÍCH HỢP ĐỒNG BỘ ĐÁM MÂY + ĐÓNG GÓI FILE HTML        -->
+    <!-- MÃ NGUỒN JAVASCRIPT CHÍNH & TÍCH HỢP SUPABASE CLOUD                        -->
     <!-- ========================================================================== -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Khởi tạo kết nối đám mây tự động nếu môi trường hỗ trợ
-        let db = null;
-        let auth = null;
-        let currentUser = null;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'personal-achievement-portfolio';
-
-        async function initCloudSync() {
-            try {
-                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                    const firebaseConfig = JSON.parse(__firebase_config);
-                    const app = initializeApp(firebaseConfig);
-                    db = getFirestore(app);
-                    auth = getAuth(app);
-
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-
-                    onAuthStateChanged(auth, (user) => {
-                        currentUser = user;
-                        if (user && db) {
-                            const portfolioDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'portfolio_store', 'main_portfolio');
-                            onSnapshot(
-                                portfolioDocRef,
-                                (snapshot) => {
-                                    if (snapshot.exists()) {
-                                        const cloudData = snapshot.data();
-                                        if (cloudData && cloudData.payload) {
-                                            try {
-                                                const parsed = JSON.parse(cloudData.payload);
-                                                window.applyExternalPortfolioData(parsed, 'Đã đồng bộ Cloud thời gian thực');
-                                            } catch (e) {
-                                                console.error('Lỗi giải mã dữ liệu Cloud:', e);
-                                            }
-                                        }
-                                    } else {
-                                        // Nếu trên Cloud chưa có, đẩy dữ liệu khởi tạo lên Cloud
-                                        window.pushPortfolioToCloud();
-                                    }
-                                },
-                                (error) => {
-                                    console.warn('Chế độ ngoại tuyến / Local:', error.message);
-                                }
-                            );
-                        }
-                    });
-                }
-            } catch (e) {
-                console.warn('Sử dụng chế độ lưu trữ cục bộ & Bake-in HTML:', e);
-            }
-        }
-
-        window.pushPortfolioToCloud = async function() {
-            if (!db || !currentUser || !window.getPortfolioState) return;
-            try {
-                const state = window.getPortfolioState();
-                const portfolioDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'portfolio_store', 'main_portfolio');
-                await setDoc(portfolioDocRef, {
-                    payload: JSON.stringify(state),
-                    updatedAt: Date.now(),
-                    updatedBy: currentUser.uid
-                });
-                const syncText = document.getElementById('syncStatusText');
-                if (syncText) syncText.textContent = 'Đã đồng bộ Đám mây (Mọi người xem link đều thấy)';
-            } catch (e) {
-                console.warn('Không thể ghi lên Cloud (dữ liệu vẫn được lưu Local):', e);
-            }
-        };
-
-        initCloudSync();
-    </script>
-
     <script>
         /**
-         * HẰNG SỐ LƯU TRỮ VÀ CẤU HÌNH 5 DANH MỤC
+         * CẤU HÌNH SUPABASE MẶC ĐỊNH
+         * Bạn có thể dán trực tiếp URL và Anon Key vào 2 hằng số dưới đây,
+         * HOẶC nhập trực tiếp trên giao diện web (Nút "Kết nối Supabase Cloud" trong chế độ Admin).
+         */
+        const DEFAULT_SUPABASE_URL = '';
+        const DEFAULT_SUPABASE_ANON_KEY = '';
+        const SUPABASE_TABLE_NAME = 'portfolio_store';
+        const SUPABASE_ROW_ID = 'main_portfolio';
+
+        /**
+         * HẰNG SỐ LƯU TRỮ VÀ MÃ PIN QUẢN TRỊ MẶC ĐỊNH (01020304)
          */
         const STORAGE_KEY = 'PERSONAL_ACHIEVEMENT_PORTFOLIO_V2';
+        const SUPABASE_CONFIG_STORAGE_KEY = 'PORTFOLIO_SUPABASE_CONFIG_V1';
+        const DEFAULT_ADMIN_PIN = '01020304';
 
         const CATEGORY_CONFIG = {
             'Dự án': {
@@ -1115,16 +1172,18 @@
 
         /**
          * TRẠNG THÁI ỨNG DỤNG & QUYỀN QUẢN TRỊ
-         * Mặc định isAdmin = false (Chế độ Khách - Chỉ xem) để bảo vệ hồ sơ khi chia sẻ link
          */
         let isAdmin = false;
         let activeCategoryFilter = 'ALL';
         let currentUploadedImageBase64 = '';
         let currentFilteredList = [];
         let currentDetailModalId = null;
+        let supabaseClient = null;
+        let supabaseRealtimeChannel = null;
 
         let appState = {
-            adminPin: '2026',
+            adminPin: DEFAULT_ADMIN_PIN,
+            updatedAt: 0,
             profile: {
                 name: 'Nguyễn Hoàng Đức',
                 role: 'Giảng viên CNTT & Nhà phát triển Web / AI — Trường Cao đẳng Cơ điện Hà Nội',
@@ -1140,7 +1199,268 @@
         window.getPortfolioState = () => appState;
 
         /**
-         * 1. HÀM VẼ AVATAR & ẢNH BÌA CHỨNG NHẬN BẰNG HTML5 CANVAS
+         * 1. QUẢN LÝ KẾT NỐI & ĐỒNG BỘ SUPABASE CLOUD
+         */
+        function getActiveSupabaseCredentials() {
+            // 1. Ưu tiên cấu hình trong LocalStorage (nếu chủ sở hữu vừa nhập)
+            try {
+                const raw = localStorage.getItem(SUPABASE_CONFIG_STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && parsed.url && parsed.anonKey) {
+                        return { url: parsed.url.trim(), anonKey: parsed.anonKey.trim() };
+                    }
+                }
+            } catch (e) {}
+
+            // 2. Cấu hình nhúng cứng trong file HTML khi xuất file
+            if (
+                window.__BAKED_SUPABASE_CONFIG__ &&
+                window.__BAKED_SUPABASE_CONFIG__.url &&
+                window.__BAKED_SUPABASE_CONFIG__.anonKey
+            ) {
+                return {
+                    url: window.__BAKED_SUPABASE_CONFIG__.url.trim(),
+                    anonKey: window.__BAKED_SUPABASE_CONFIG__.anonKey.trim()
+                };
+            }
+
+            // 3. Hằng số DEFAULT_SUPABASE_URL / KEY trong code
+            if (DEFAULT_SUPABASE_URL && DEFAULT_SUPABASE_ANON_KEY) {
+                return {
+                    url: DEFAULT_SUPABASE_URL.trim(),
+                    anonKey: DEFAULT_SUPABASE_ANON_KEY.trim()
+                };
+            }
+
+            return null;
+        }
+
+        async function initSupabaseSync() {
+            const creds = getActiveSupabaseCredentials();
+            const btnLabel = document.getElementById('supabaseBtnLabel');
+            const syncDot = document.getElementById('syncStatusDot');
+            const syncText = document.getElementById('syncStatusText');
+
+            if (!creds || !creds.url || !creds.anonKey || !window.supabase) {
+                supabaseClient = null;
+                if (btnLabel) btnLabel.textContent = 'Kết nối Supabase Cloud';
+                return;
+            }
+
+            try {
+                supabaseClient = window.supabase.createClient(creds.url, creds.anonKey);
+                if (btnLabel) btnLabel.textContent = 'Supabase: Đã kết nối';
+                if (syncText) syncText.textContent = 'Đang tải dữ liệu mới nhất từ Supabase...';
+
+                // Tải dữ liệu mới nhất từ bảng portfolio_store để người xem luôn thấy bản cập nhật của chủ hồ sơ
+                const { data, error } = await supabaseClient
+                    .from(SUPABASE_TABLE_NAME)
+                    .select('payload, updated_at')
+                    .eq('id', SUPABASE_ROW_ID)
+                    .maybeSingle();
+
+                if (error) {
+                    console.warn('Lưu ý khi tải Supabase:', error.message);
+                    if (syncText) syncText.textContent = 'Supabase sẵn sàng (Chưa có bản ghi hoặc cần tạo bảng)';
+                    return;
+                }
+
+                if (data && data.payload) {
+                    const cloudPayload = typeof data.payload === 'string'
+                        ? JSON.parse(data.payload)
+                        : data.payload;
+
+                    window.applyExternalPortfolioData(cloudPayload, 'Đã đồng bộ từ Supabase Cloud');
+                    if (syncDot) syncDot.className = 'inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+                    if (syncText) syncText.textContent = 'Đã đồng bộ trực tiếp từ Supabase Cloud';
+                } else {
+                    // Nếu bảng trên Supabase đang trống, đẩy dữ liệu hiện tại lên khởi tạo
+                    await pushPortfolioToSupabase(false);
+                }
+
+                // Đăng ký lắng nghe thay đổi thời gian thực (Realtime)
+                if (supabaseRealtimeChannel) {
+                    supabaseClient.removeChannel(supabaseRealtimeChannel);
+                }
+                supabaseRealtimeChannel = supabaseClient
+                    .channel('public:portfolio_store')
+                    .on(
+                        'postgres_changes',
+                        { event: '*', schema: 'public', table: SUPABASE_TABLE_NAME, filter: `id=eq.${SUPABASE_ROW_ID}` },
+                        (changePayload) => {
+                            if (changePayload.new && changePayload.new.payload) {
+                                const incoming = typeof changePayload.new.payload === 'string'
+                                    ? JSON.parse(changePayload.new.payload)
+                                    : changePayload.new.payload;
+                                if (!incoming.updatedAt || incoming.updatedAt > (appState.updatedAt || 0)) {
+                                    window.applyExternalPortfolioData(incoming, 'Cập nhật tức thì từ Supabase');
+                                }
+                            }
+                        }
+                    )
+                    .subscribe();
+
+            } catch (err) {
+                console.warn('Không thể kết nối Supabase:', err);
+            }
+        }
+
+        async function pushPortfolioToSupabase(showToastFeedback = false) {
+            if (!supabaseClient) return false;
+            const syncText = document.getElementById('syncStatusText');
+            try {
+                if (syncText) syncText.textContent = 'Đang đồng bộ lên Supabase Cloud...';
+                appState.updatedAt = Date.now();
+
+                const { error } = await supabaseClient
+                    .from(SUPABASE_TABLE_NAME)
+                    .upsert({
+                        id: SUPABASE_ROW_ID,
+                        payload: appState,
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'id' });
+
+                if (error) throw error;
+
+                if (syncText) syncText.textContent = 'Đã lưu trên Supabase Cloud (Công khai)';
+                if (showToastFeedback) {
+                    showToast('Đã đẩy toàn bộ hồ sơ & thành tích lên Supabase thành công!', 'success');
+                }
+                return true;
+            } catch (err) {
+                console.error('Lỗi ghi dữ liệu lên Supabase:', err);
+                if (syncText) syncText.textContent = 'Lỗi ghi Supabase (Kiểm tra bảng / RLS SQL)';
+                if (showToastFeedback) {
+                    showToast('Lỗi đẩy lên Supabase: ' + (err.message || 'Hãy chắc chắn bạn đã chạy lệnh SQL tạo bảng!'), 'error');
+                }
+                return false;
+            }
+        }
+
+        function openSupabaseModal() {
+            if (!isAdmin) {
+                openPinModal();
+                return;
+            }
+            const creds = getActiveSupabaseCredentials();
+            document.getElementById('sbUrlInput').value = creds ? creds.url : '';
+            document.getElementById('sbKeyInput').value = creds ? creds.anonKey : '';
+
+            const modal = document.getElementById('supabaseModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeSupabaseModal() {
+            const modal = document.getElementById('supabaseModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function saveAndSyncSupabaseConfig(event) {
+            event.preventDefault();
+            if (!isAdmin) return;
+
+            const url = document.getElementById('sbUrlInput').value.trim().replace(/\/$/, '');
+            const anonKey = document.getElementById('sbKeyInput').value.trim();
+
+            if (!url || !anonKey) {
+                showToast('Vui lòng nhập đầy đủ Supabase URL và Anon Key!', 'error');
+                return;
+            }
+
+            localStorage.setItem(SUPABASE_CONFIG_STORAGE_KEY, JSON.stringify({ url, anonKey }));
+            window.__BAKED_SUPABASE_CONFIG__ = { url, anonKey };
+
+            showToast('Đang kết nối và đẩy dữ liệu lên Supabase...', 'info');
+            supabaseClient = window.supabase.createClient(url, anonKey);
+            const ok = await pushPortfolioToSupabase(true);
+            if (ok) {
+                document.getElementById('supabaseBtnLabel').textContent = 'Supabase: Đã kết nối';
+                closeSupabaseModal();
+                initSupabaseSync();
+            }
+        }
+
+        async function pullFromSupabaseManual() {
+            const url = document.getElementById('sbUrlInput').value.trim().replace(/\/$/, '');
+            const anonKey = document.getElementById('sbKeyInput').value.trim();
+            if (!url || !anonKey) {
+                showToast('Vui lòng nhập URL và Anon Key trước khi tải dữ liệu!', 'error');
+                return;
+            }
+            localStorage.setItem(SUPABASE_CONFIG_STORAGE_KEY, JSON.stringify({ url, anonKey }));
+            window.__BAKED_SUPABASE_CONFIG__ = { url, anonKey };
+            await initSupabaseSync();
+            showToast('Đã đồng bộ dữ liệu mới nhất từ Supabase về máy!', 'success');
+            closeSupabaseModal();
+        }
+
+        function disconnectSupabaseConfig() {
+            localStorage.removeItem(SUPABASE_CONFIG_STORAGE_KEY);
+            window.__BAKED_SUPABASE_CONFIG__ = null;
+            supabaseClient = null;
+            document.getElementById('sbUrlInput').value = '';
+            document.getElementById('sbKeyInput').value = '';
+            document.getElementById('supabaseBtnLabel').textContent = 'Kết nối Supabase Cloud';
+            document.getElementById('syncStatusText').textContent = 'Chế độ lưu trữ cục bộ (Local)';
+            showToast('Đã ngắt kết nối Supabase khỏi trình duyệt này.', 'info');
+        }
+
+        function copySupabaseSqlScript() {
+            const sqlScript = `-- Chạy đoạn mã này trong Supabase SQL Editor để tạo bảng lưu trữ Hồ sơ & Thành tích:
+CREATE TABLE IF NOT EXISTS public.portfolio_store (
+    id TEXT PRIMARY KEY,
+    payload JSONB NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.portfolio_store ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public read access" ON public.portfolio_store;
+CREATE POLICY "Allow public read access"
+    ON public.portfolio_store FOR SELECT
+    USING (true);
+
+DROP POLICY IF EXISTS "Allow anon insert update" ON public.portfolio_store;
+CREATE POLICY "Allow anon insert update"
+    ON public.portfolio_store FOR ALL
+    USING (true)
+    WITH CHECK (true);`;
+
+            copyTextToClipboard(sqlScript, 'Đã sao chép lệnh SQL! Hãy dán vào Supabase SQL Editor và bấm Run.');
+        }
+
+        /**
+         * 2. HÀM TIỆN ÍCH SAO CHÉP VÀO CLIPBOARD (TƯƠNG THÍCH MỌI TRÌNH DUYỆT & IFRAME)
+         */
+        function copyTextToClipboard(text, successMsg = 'Đã sao chép vào bộ nhớ tạm!') {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast(successMsg, 'success');
+            } catch (err) {
+                showToast('Không thể sao chép tự động.', 'error');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function copyContactInfo() {
+            const contactText = (appState.profile && appState.profile.contact)
+                ? appState.profile.contact
+                : document.getElementById('profileContact').textContent.trim();
+            copyTextToClipboard(contactText, `Đã sao chép liên hệ: ${contactText}`);
+        }
+
+        /**
+         * 3. HÀM VẼ AVATAR & ẢNH BÌA CHỨNG NHẬN BẰNG HTML5 CANVAS
          */
         function createDefaultAvatarBase64(initials = 'HĐ') {
             const canvas = document.createElement('canvas');
@@ -1249,7 +1569,7 @@
         }
 
         /**
-         * 2. NÉN ẢNH TỰ ĐỘNG QUA HTML5 CANVAS
+         * 4. NÉN ẢNH TỰ ĐỘNG QUA HTML5 CANVAS
          */
         function compressImageFile(file, maxWidth = 900, quality = 0.76) {
             return new Promise((resolve, reject) => {
@@ -1285,11 +1605,12 @@
         }
 
         /**
-         * 3. KHỞI TẠO DỮ LIỆU MẪU BAN ĐẦU
+         * 5. KHỞI TẠO DỮ LIỆU MẪU BAN ĐẦU (MÃ PIN: 01020304)
          */
         function getInitialSampleData() {
             return {
-                adminPin: '2026',
+                adminPin: DEFAULT_ADMIN_PIN,
+                updatedAt: 0,
                 profile: {
                     name: 'Nguyễn Hoàng Đức',
                     role: 'Giảng viên CNTT & Nhà phát triển Web / AI — Trường Cao đẳng Cơ điện Hà Nội',
@@ -1350,26 +1671,33 @@
         }
 
         /**
-         * 4. TẢI DỮ LIỆU TỪ 3 NGUỒN ƯU TIÊN:
-         * (1) Dữ liệu nhúng cứng trong file HTML (`window.__BAKED_PORTFOLIO_DATA__`) +
-         * (2) LocalStorage trên trình duyệt +
-         * (3) Đồng bộ thời gian thực từ Cloud Firestore
+         * 6. TẢI DỮ LIỆU & ĐỒNG BỘ TỪ BAKED HTML / LOCALSTORAGE / SUPABASE
          */
         function loadFromStorage() {
             try {
                 const rawLocal = localStorage.getItem(STORAGE_KEY);
                 const bakedData = window.__BAKED_PORTFOLIO_DATA__;
 
-                if (rawLocal) {
-                    const parsed = JSON.parse(rawLocal);
-                    mergeIntoAppState(parsed);
+                if (bakedData && typeof bakedData === 'object' && rawLocal) {
+                    const parsedLocal = JSON.parse(rawLocal);
+                    // Ưu tiên bản có updatedAt mới hơn giữa Baked HTML và LocalStorage
+                    const bakedTime = Number(bakedData.updatedAt || 0);
+                    const localTime = Number(parsedLocal.updatedAt || 0);
+                    if (bakedTime >= localTime) {
+                        mergeIntoAppState(bakedData);
+                    } else {
+                        mergeIntoAppState(parsedLocal);
+                    }
                 } else if (bakedData && typeof bakedData === 'object') {
                     mergeIntoAppState(bakedData);
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+                } else if (rawLocal) {
+                    const parsed = JSON.parse(rawLocal);
+                    mergeIntoAppState(parsed);
                 } else {
                     appState = getInitialSampleData();
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
                 }
+
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
             } catch (err) {
                 console.error('Khởi tạo dữ liệu mặc định:', err);
                 appState = getInitialSampleData();
@@ -1389,8 +1717,16 @@
             if (!mergedProfile.avatar) {
                 mergedProfile.avatar = createDefaultAvatarBase64('HĐ');
             }
+
+            // Tự động nâng cấp mã PIN cũ '2026' sang mã PIN mới '01020304' theo yêu cầu
+            let resolvedPin = source.adminPin || DEFAULT_ADMIN_PIN;
+            if (resolvedPin === '2026') {
+                resolvedPin = DEFAULT_ADMIN_PIN;
+            }
+
             appState = {
-                adminPin: source.adminPin || sample.adminPin || '2026',
+                adminPin: resolvedPin,
+                updatedAt: source.updatedAt || Date.now(),
                 profile: mergedProfile,
                 achievements: Array.isArray(source.achievements) ? source.achievements : sample.achievements
             };
@@ -1410,13 +1746,14 @@
 
         function saveToStorage(showNotification = false) {
             try {
+                appState.updatedAt = Date.now();
                 const serialized = JSON.stringify(appState);
                 localStorage.setItem(STORAGE_KEY, serialized);
                 updateStorageUsageBadge();
 
-                // Đồng bộ lên Cloud nếu có kết nối
-                if (typeof window.pushPortfolioToCloud === 'function') {
-                    window.pushPortfolioToCloud();
+                // Tự động đẩy dữ liệu lên Supabase Cloud nếu đã cấu hình
+                if (supabaseClient) {
+                    pushPortfolioToSupabase(false);
                 }
 
                 const now = new Date();
@@ -1426,7 +1763,7 @@
                     showToast('Đã lưu và đồng bộ thay đổi!', 'success');
                 }
             } catch (err) {
-                showToast('Bộ nhớ trình duyệt gần đầy! Hãy xuất file để sao lưu.', 'error');
+                showToast('Bộ nhớ trình duyệt gần đầy! Hãy kết nối Supabase hoặc xuất file.', 'error');
             }
         }
 
@@ -1439,7 +1776,7 @@
         }
 
         /**
-         * 5. QUẢN LÝ PHÂN QUYỀN: CHẾ ĐỘ KHÁCH (VIEWER) vs CHẾ ĐỘ QUẢN TRỊ (ADMIN)
+         * 7. QUẢN LÝ PHÂN QUYỀN: CHẾ ĐỘ KHÁCH (VIEWER) vs CHẾ ĐỘ QUẢN TRỊ (ADMIN)
          */
         function applyPermissionModeUI() {
             const body = document.body;
@@ -1483,8 +1820,8 @@
             if (!isAdmin) return;
             document.getElementById('pinModalMode').value = 'change';
             document.getElementById('pinModalTitle').textContent = 'Đổi Mã PIN Quản trị mới';
-            document.getElementById('pinModalSubtitle').textContent = 'Mã PIN mới sẽ được lưu vào hồ sơ của bạn';
-            document.getElementById('pinInputLabel').textContent = 'Nhập mã PIN mới (Từ 4 - 12 ký tự)';
+            document.getElementById('pinModalSubtitle').textContent = 'Mã PIN mới sẽ được lưu vào hồ sơ và đồng bộ Supabase';
+            document.getElementById('pinInputLabel').textContent = 'Nhập mã PIN mới (Từ 4 - 16 ký tự)';
             const input = document.getElementById('pinCodeInput');
             input.value = '';
             const modal = document.getElementById('pinModal');
@@ -1506,7 +1843,7 @@
             const enteredPin = document.getElementById('pinCodeInput').value.trim();
 
             if (mode === 'unlock') {
-                const currentPin = String(appState.adminPin || '2026');
+                const currentPin = String(appState.adminPin || DEFAULT_ADMIN_PIN);
                 if (enteredPin === currentPin) {
                     isAdmin = true;
                     closePinModal();
@@ -1534,7 +1871,7 @@
         }
 
         /**
-         * 6. HIỂN THỊ & CHỈNH SỬA HỒ SƠ CÁ NHÂN (HERO BENTO)
+         * 8. HIỂN THỊ & CHỈNH SỬA HỒ SƠ CÁ NHÂN (HERO BENTO)
          */
         function renderProfileHero() {
             const fallbackName = 'Nguyễn Hoàng Đức';
@@ -1549,7 +1886,7 @@
             document.getElementById('profileMotto').textContent = appState.profile.motto;
             document.getElementById('profileLocation').textContent = appState.profile.location || 'Hà Nội, Việt Nam';
             document.getElementById('profileSpecialty').textContent = appState.profile.specialty || 'Web Fullstack & AI';
-            document.getElementById('profileContact').textContent = appState.profile.contact || 'Liên hệ công việc';
+            document.getElementById('profileContact').textContent = appState.profile.contact || 'hoangduc.cntt@hcem.edu.vn';
         }
 
         function setupInlineProfileEditing() {
@@ -1573,7 +1910,7 @@
                     if (appState.profile[field] !== newValue) {
                         appState.profile[field] = newValue;
                         saveToStorage(false);
-                        showToast('Đã lưu thông tin hồ sơ!', 'success');
+                        showToast('Đã lưu và đồng bộ thông tin hồ sơ!', 'success');
                     }
                 });
             });
@@ -1603,7 +1940,7 @@
         }
 
         /**
-         * 7. THỐNG KÊ BENTO & THANH TỶ TRỌNG DANH MỤC
+         * 9. THỐNG KÊ BENTO & THANH TỶ TRỌNG DANH MỤC
          */
         function renderStatsAndFilters() {
             const total = appState.achievements.length;
@@ -1656,7 +1993,7 @@
                         </div>
                         <div>
                             <div class="font-mono font-bold text-base sm:text-lg text-white leading-tight">${counts[cat]}</div>
-                            <div class="text-[10px] text-slate-400 truncate mt-0.5">${cat}</div>
+                            <div class="text-[11px] text-slate-400 leading-tight mt-0.5">${cat}</div>
                         </div>
                     </button>
                 `;
@@ -1730,7 +2067,7 @@
         }
 
         /**
-         * 8. LỌC, SẮP XẾP & HIỂN THỊ THẺ BENTO THÀNH TÍCH
+         * 10. LỌC, SẮP XẾP & HIỂN THỊ THẺ BENTO THÀNH TÍCH
          */
         function handleSearchAndFilter() {
             const query = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -1906,9 +2243,6 @@
             lucide.createIcons();
         }
 
-        /**
-         * Hiệu ứng Spotlight phát sáng theo tọa độ chuột trên mọi thẻ Bento
-         */
         function setupSpotlightHoverEffect() {
             const cards = document.querySelectorAll('.bento-card');
             cards.forEach(card => {
@@ -1923,7 +2257,7 @@
         }
 
         /**
-         * 9. QUẢN LÝ CRUD THÀNH TÍCH (CHỈ DÀNH CHO ADMIN)
+         * 11. QUẢN LÝ CRUD THÀNH TÍCH (CHỈ DÀNH CHO ADMIN)
          */
         function openAchievementModal(editId = null) {
             if (!isAdmin) {
@@ -2060,7 +2394,7 @@
                         image: finalImage
                     };
                 }
-                showToast('Đã cập nhật thành tích thành công!', 'success');
+                showToast('Đã cập nhật thành tích & đồng bộ Cloud!', 'success');
             } else {
                 const newItem = {
                     id: 'ach-' + Date.now(),
@@ -2073,7 +2407,7 @@
                     image: finalImage
                 };
                 appState.achievements.unshift(newItem);
-                showToast('Đã thêm thành tích mới vào hồ sơ!', 'success');
+                showToast('Đã thêm thành tích mới & đồng bộ Cloud!', 'success');
             }
 
             saveToStorage(false);
@@ -2097,7 +2431,7 @@
         }
 
         /**
-         * 10. MAGAZINE LIGHTBOX MODAL & CHUYỂN TIẾP TRƯỚC / SAU
+         * 12. MAGAZINE LIGHTBOX MODAL & CHUYỂN TIẾP TRƯỚC / SAU
          */
         function openDetailModal(id) {
             const list = currentFilteredList.length > 0 ? currentFilteredList : appState.achievements;
@@ -2174,6 +2508,7 @@
             if (event.target.id === modalId) {
                 if (modalId === 'detailModal') closeDetailModal();
                 if (modalId === 'pinModal') closePinModal();
+                if (modalId === 'supabaseModal') closeSupabaseModal();
                 if (modalId === 'shareGuideModal') closeShareGuideModal();
             }
         }
@@ -2209,7 +2544,7 @@
                 closeConfirmModal();
                 renderStatsAndFilters();
                 handleSearchAndFilter();
-                showToast('Đã xóa thành tích khỏi hồ sơ.', 'info');
+                showToast('Đã xóa thành tích & cập nhật Supabase.', 'info');
             };
 
             modal.classList.remove('hidden');
@@ -2246,20 +2581,18 @@
         }
 
         /**
-         * 11. TÍNH NĂNG ĐẶC BIỆT: ĐÓNG GÓI FILE INDEX.HTML ĐÃ NHÚNG DỮ LIỆU (BAKE-IN HTML GENERATOR)
-         * Giúp người dùng tải về 1 file index.html chứa sẵn toàn bộ thành tích + ảnh và mặc định ở Viewer Mode
+         * 13. ĐÓNG GÓI FILE INDEX.HTML ĐÃ NHÚNG DỮ LIỆU + CẤU HÌNH SUPABASE (BAKE-IN HTML GENERATOR)
          */
         function exportBakedHtmlFile() {
             try {
-                // Nhân bản cây DOM hiện tại để làm sạch trạng thái trước khi đóng gói
+                appState.updatedAt = Date.now();
                 const cloneDoc = document.documentElement.cloneNode(true);
                 const cloneBody = cloneDoc.querySelector('body');
                 if (cloneBody) {
                     cloneBody.classList.remove('is-admin');
                 }
 
-                // Đóng tất cả các modal trong bản đóng gói
-                ['formModal', 'detailModal', 'pinModal', 'shareGuideModal', 'confirmModal'].forEach(id => {
+                ['formModal', 'detailModal', 'pinModal', 'supabaseModal', 'shareGuideModal', 'confirmModal'].forEach(id => {
                     const m = cloneDoc.querySelector('#' + id);
                     if (m) {
                         m.classList.add('hidden');
@@ -2267,20 +2600,23 @@
                     }
                 });
 
-                // Xóa thông báo toast tạm thời
                 const toastBox = cloneDoc.querySelector('#toastContainer');
                 if (toastBox) toastBox.innerHTML = '';
 
-                // Tắt contenteditable trong bản xuất để khách vào chỉ xem
                 cloneDoc.querySelectorAll('.editable-field').forEach(el => {
                     el.setAttribute('contenteditable', 'false');
                 });
 
-                // Nhúng cứng toàn bộ dữ liệu appState vào thẻ script#baked-data-script
+                // Nhúng cứng toàn bộ appState VÀ cấu hình Supabase vào file xuất ra
                 const bakedScript = cloneDoc.querySelector('#baked-data-script');
                 if (bakedScript) {
-                    const safeJson = JSON.stringify(appState).replace(/<\/script>/gi, '<\\/script>');
-                    bakedScript.textContent = `\n        window.__BAKED_PORTFOLIO_DATA__ = ${safeJson};\n    `;
+                    const safePortfolioJson = JSON.stringify(appState).replace(/<\/script>/gi, '<\\/script>');
+                    const activeCreds = getActiveSupabaseCredentials();
+                    const safeSupabaseJson = activeCreds
+                        ? JSON.stringify(activeCreds).replace(/<\/script>/gi, '<\\/script>')
+                        : 'null';
+
+                    bakedScript.textContent = `\n        window.__BAKED_PORTFOLIO_DATA__ = ${safePortfolioJson};\n        window.__BAKED_SUPABASE_CONFIG__ = ${safeSupabaseJson};\n    `;
                 }
 
                 const finalHtml = '<!DOCTYPE html>\n' + cloneDoc.outerHTML;
@@ -2295,7 +2631,7 @@
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
 
-                showToast('Đã xuất file index.html chứa sẵn toàn bộ thành tích & khóa ở Chế độ Khách!', 'success');
+                showToast('Đã tải xuống index.html (Đã nhúng dữ liệu + Supabase & khóa ở Chế độ Khách)!', 'success');
             } catch (err) {
                 console.error(err);
                 showToast('Không thể đóng gói file HTML.', 'error');
@@ -2303,13 +2639,13 @@
         }
 
         /**
-         * 12. SAO LƯU & PHỤC HỒI FILE JSON
+         * 14. SAO LƯU & PHỤC HỒI FILE JSON
          */
         function exportPortfolioData() {
             try {
                 const exportPayload = {
                     exportedAt: new Date().toISOString(),
-                    version: '2.0',
+                    version: '2.1',
                     ...appState
                 };
                 const jsonString = JSON.stringify(exportPayload, null, 2);
@@ -2359,7 +2695,7 @@
         }
 
         /**
-         * 13. HỆ THỐNG THÔNG BÁO TOAST
+         * 15. HỆ THỐNG THÔNG BÁO TOAST
          */
         function showToast(message, type = 'info') {
             const container = document.getElementById('toastContainer');
@@ -2404,12 +2740,16 @@
             setupSpotlightHoverEffect();
             lucide.createIcons();
 
+            // Tự động kết nối và đồng bộ dữ liệu từ Supabase Cloud
+            initSupabaseSync();
+
             // Phím tắt tiện lợi cho Lightbox & Modal
             window.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     closeAchievementModal();
                     closeDetailModal();
                     closePinModal();
+                    closeSupabaseModal();
                     closeShareGuideModal();
                     closeConfirmModal();
                 } else if (currentDetailModalId) {
