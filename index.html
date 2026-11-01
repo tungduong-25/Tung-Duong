@@ -390,7 +390,8 @@
                     <div class="space-y-3 text-center sm:text-left">
                         <div class="flex flex-col sm:flex-row sm:items-center gap-2 justify-center sm:justify-start">
                             <h1 id="profileName" spellcheck="false" data-field="name"
-                                class="editable-field font-display text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-cyan-200 bg-clip-text text-transparent">
+                                style="text-shadow: 0 2px 22px rgba(99, 102, 241, 0.55);"
+                                class="editable-field inline-block min-w-[220px] font-display text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white">
                                 Nguyễn Hoàng Đức
                             </h1>
                         </div>
@@ -872,7 +873,7 @@
                 <input type="hidden" id="pinModalMode" value="unlock">
                 <div>
                     <label id="pinInputLabel" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
-                        Nhập mã PIN Quản trị 
+                        Nhập mã PIN bảo mật để mở khóa quyền Quản trị
                     </label>
                     <input type="password" id="pinCodeInput" required maxlength="12"
                         placeholder="••••"
@@ -880,7 +881,7 @@
                 </div>
 
                 <p class="text-[11px] text-slate-400 leading-relaxed bg-slate-900/70 p-3 rounded-xl border border-white/5">
-                    💡 <strong class="text-slate-200">Bảo vệ quyền riêng tư:</strong> Người khác khi mở link mặc định ở <em>Chế độ Khách (Chỉ xem)</em>. Khi mở khóa Quản trị, bạn có thể cập nhật thành tích và xuất file <code class="text-cyan-300">index.html</code> đã nhúng sẵn dữ liệu.
+                    🔒 <strong class="text-slate-200">Khu vực dành riêng cho chủ sở hữu:</strong> Vui lòng nhập mã PIN bảo mật cá nhân để bật công cụ quản lý và chỉnh sửa hồ sơ.
                 </p>
 
                 <div class="flex items-center gap-3 pt-1">
@@ -924,7 +925,7 @@
                         <span>1. Chế độ Khách (Viewer Mode) mặc định</span>
                     </div>
                     <p class="text-slate-400 text-xs">
-                        Mọi người khi mở trang đều ở <strong class="text-white">Chế độ Khách (Chỉ xem)</strong>. Toàn bộ nút Thêm/Sửa/Xóa đã được khóa bằng mã PIN của bạn (mặc định: <code class="text-amber-300 font-mono">2026</code>).
+                        Mọi người khi mở trang đều ở <strong class="text-white">Chế độ Khách (Chỉ xem)</strong>. Toàn bộ tính năng Thêm/Sửa/Xóa đã được bảo vệ an toàn bằng mã PIN Quản trị riêng của bạn.
                     </p>
                 </div>
 
@@ -934,7 +935,7 @@
                         <span>2. Xuất file index.html đã nhúng cứng thành tích (Khuyên dùng khi gửi file / đưa lên Hosting)</span>
                     </div>
                     <p class="text-slate-400 text-xs">
-                        Vì <code class="text-slate-200">LocalStorage</code> chỉ lưu trên máy của bạn, sau khi thêm thành tích xong ở chế độ Admin, hãy bấm nút <strong class="text-amber-200">"Xuất file index.html (Đã nhúng dữ liệu)"</strong>. Hệ thống sẽ tạo ra một file <code class="text-cyan-300">index.html</code> mới chứa sẵn toàn bộ ảnh, ghi chú và thành tích của bạn bên trong code! Bạn gửi file đó hoặc đưa lên GitHub Pages / Vercel thì bất kỳ ai bấm vào link cũng xem được ngay.
+                        Sau khi thêm thành tích hoặc đổi mã PIN ở chế độ Admin, hãy bấm nút <strong class="text-amber-200">"Xuất file index.html (Đã nhúng dữ liệu)"</strong>. Hệ thống sẽ tải về một file <code class="text-cyan-300">index.html</code> mới chứa sẵn toàn bộ ảnh, ghi chú, mã PIN mới và thành tích của bạn ngay bên trong code để bạn đưa lên GitHub Pages / Vercel.
                     </p>
                     <div class="pt-1">
                         <button onclick="exportBakedHtmlFile()"
@@ -1378,17 +1379,21 @@
 
         function mergeIntoAppState(source) {
             const sample = getInitialSampleData();
+            const mergedProfile = {
+                ...sample.profile,
+                ...(source.profile || {})
+            };
+            if (!mergedProfile.name || !String(mergedProfile.name).trim()) {
+                mergedProfile.name = sample.profile.name;
+            }
+            if (!mergedProfile.avatar) {
+                mergedProfile.avatar = createDefaultAvatarBase64('HĐ');
+            }
             appState = {
                 adminPin: source.adminPin || sample.adminPin || '2026',
-                profile: {
-                    ...sample.profile,
-                    ...(source.profile || {})
-                },
+                profile: mergedProfile,
                 achievements: Array.isArray(source.achievements) ? source.achievements : sample.achievements
             };
-            if (!appState.profile.avatar) {
-                appState.profile.avatar = createDefaultAvatarBase64('HĐ');
-            }
         }
 
         window.applyExternalPortfolioData = function(parsedData, statusLabel = 'Đã đồng bộ dữ liệu') {
@@ -1464,7 +1469,7 @@
             document.getElementById('pinModalMode').value = 'unlock';
             document.getElementById('pinModalTitle').textContent = 'Mở khóa Chế độ Quản trị';
             document.getElementById('pinModalSubtitle').textContent = 'Chỉ chủ sở hữu hồ sơ mới có quyền Thêm / Sửa / Xóa';
-            document.getElementById('pinInputLabel').textContent = 'Nhập mã PIN Quản trị (Mặc định: 2026)';
+            document.getElementById('pinInputLabel').textContent = 'Nhập mã PIN bảo mật để mở khóa quyền Quản trị';
             const input = document.getElementById('pinCodeInput');
             input.value = '';
             const modal = document.getElementById('pinModal');
@@ -1532,8 +1537,14 @@
          * 6. HIỂN THỊ & CHỈNH SỬA HỒ SƠ CÁ NHÂN (HERO BENTO)
          */
         function renderProfileHero() {
+            const fallbackName = 'Nguyễn Hoàng Đức';
+            const displayName = (appState.profile.name && String(appState.profile.name).trim())
+                ? appState.profile.name
+                : fallbackName;
+            appState.profile.name = displayName;
+
             document.getElementById('profileAvatar').src = appState.profile.avatar;
-            document.getElementById('profileName').textContent = appState.profile.name;
+            document.getElementById('profileName').textContent = displayName;
             document.getElementById('profileRole').textContent = appState.profile.role;
             document.getElementById('profileMotto').textContent = appState.profile.motto;
             document.getElementById('profileLocation').textContent = appState.profile.location || 'Hà Nội, Việt Nam';
@@ -2410,16 +2421,3 @@
     </script>
 </body>
 </html>
-```
-
-### Những nâng cấp quan trọng đã được cập nhật:
-
-1. **Giải quyết triệt để vấn đề Chia sẻ Link & Bảo vệ Quyền chỉnh sửa**:
-   - **Mặc định là Chế độ Khách (`Viewer Mode - Chỉ xem`)**: Khi bất kỳ ai mở link của bạn, toàn bộ các nút *Thêm, Sửa, Xóa, Ghim, Tải ảnh Avatar* và chỉnh sửa trực tiếp văn bản đều bị khóa và ẩn đi. Khách truy cập sẽ trải nghiệm một trang Portfolio chuyên nghiệp, sang trọng.
-   - **Chế độ Quản trị bảo vệ bằng Mã PIN (`Mở khóa Quản trị`)**: Nhấn vào nút **"Mở khóa Quản trị"** ở góc phải trên và nhập mã PIN (mặc định là **`2026`**, bạn có thể đổi mã PIN riêng) để bật thanh công cụ **Admin Mode** và toàn quyền thêm/sửa/xóa thành tích.
-   - **Đồng bộ Đám mây (Cloud Sync) + Nút `"Xuất file index.html (Đã nhúng dữ liệu)"`**: Ngoài việc đồng bộ trực tiếp, trong thanh công cụ Admin có nút vàng **"Xuất file index.html (Đã nhúng dữ liệu)"**. Khi bấm vào, hệ thống sẽ tự động nhúng cứng toàn bộ thành tích, hình ảnh và thông tin của bạn ngay vào mã nguồn của file `index.html` mới và đặt sẵn ở chế độ Khách để bạn gửi file hoặc đưa lên GitHub Pages / Vercel mà không bao giờ bị mất dữ liệu.
-
-2. **Nâng cấp Giao diện Ultra Bento Grid & Glassmorphism**:
-   - **Hiệu ứng Aurora Mesh & Spotlight theo chuột**: Nền tối `#040711` kết hợp dải sáng chuyển động và hiệu ứng ánh sáng chạy theo con trỏ chuột trên từng thẻ Bento.
-   - **Khu vực Hero Bento mới**: Bổ sung ảnh bìa nghệ thuật, vòng sáng Conic Gradient quanh Avatar, chấm xanh trạng thái kết nối, huy hiệu *Verified Achievement Portfolio* và 3 thẻ thông tin nhanh (*Đơn vị/Địa điểm, Chuyên môn, Liên hệ*) có thể chỉnh sửa trực tiếp khi mở khóa Admin.
-   - **Magazine Lightbox Modal**: Cửa sổ đọc chi tiết có thêm nút **Chuyển qua lại (Trước / Tiếp theo)** hoặc dùng phím mũi tên `←` `→` trên bàn phím để duyệt nhanh qua các chứng chỉ và câu chuyện thành tích.
